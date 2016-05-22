@@ -90,9 +90,9 @@ Raw pointers are **not bad per se**. One problem is that you could have memory l
 However, the big issue is that you have no information about **who is the owner** of the raw pointer, in other words, who bears the **responsibility of deleting it**. Documentation of your API is the only way to solve this and sometimes developers do not read or follow that one (do you remember if you must free the array returned by <code>strerror</code> function?).
 Let’s look the following example:
 
-{% highlight cpp linenos %}
+```cpp
 Foo* my_function( int* array, int array_size );
-{% endhighlight %}
+```
 
 Who is the returned pointer owner? Should I delete it after using it or is something internal? **Raw pointers have no information about multithreading therefore we must use synchronization tools like mutex, semaphores, conditions...**
 
@@ -100,9 +100,9 @@ Who is the returned pointer owner? Should I delete it after using it or is somet
 
 As you probably know, this smart pointer **assures memory will be freed when we go out of the scope**. Our previous function will be something like:
 
-{% highlight cpp linenos %}
+```cpp
 std::unary_ptr<Foo> my_function( int* array, int array_size);
-{% endhighlight %}
+```
 
 At first glance, future developers of your API will know what will be the scoped of the returned object. Moreover, we also increase the exception guarantee to **“Basic exception safety”** (a.k.a. no-leak guarantee).
 
@@ -112,50 +112,51 @@ But there are still more, when we use <code>std::unary_ptr</code> we also **faci
 
 If you come from languages which use garbage collector, you will be very comfortable using <code>std::shared_ptr</code>. Perhaps you would think: _“why are not <code>std::shared_ptr</code> used everywhere?”_ or _“Will C++ be easier than Java?”_ Well, you know C++ guys: we don’t like a unique solution for everything. In fact, we **need to be aware of the extra cost related to the internal shared counter** and the double memory request( this last has been dampened by <code>std::make_shared</code>, but that is another history).
 
-{% highlight cpp linenos %}
+```cpp
 std::shared_ptr<Foo> my_function( const vector<T>& values );
-{% endhighlight %}
+```
 
 **Asynchronous uses are not easier** than <code>std::unique_ptr</code> because we are sharing memory, so we will need to protect access using synchronous tools( mutex, semaphore, etc).
 Return an internal <code>std::shared_ptr</code> member is not a good idea as you could think. Let’s assume we have the following code:
 
-{% highlight cpp linenos %}
+```cpp
 class X {
   public:
     Y y() const;
   private:
     Y m_y;
 };
-{% endhighlight %}
+```
 
 These first option has a big problem: the **“y()” function makes a copy from m_y each time we call it**. If <code>sizeof(Y)</code> is big (or copy operation is expensive), it will affect the performance. A second option is return a const reference, isn’t it?
 
-{% highlight cpp linenos %}
+```cpp
 class X {
   public:
     const Y& y() const;
   private:
     Y m_y;
 };
-{% endhighlight %}
+```
 
 That choice has two issues at least:
-<ul>
-	<li>It does <strong>NOT</strong> guarantee to avoid copies, because it depends on where we will store the result. In example:
-{% highlight cpp linenos %}
+
++ It does <strong>NOT</strong> guarantee to avoid copies, because it depends on where we will store the result. In example:
+
+```cpp
 X x1; 
 const Y y1 = x1.y(); // copy operation.
-{% endhighlight %}
+```
 
 instead of something like:
 
-{% highlight cpp linenos %}
+```cpp
 const Y & y1 = x1.y(); // No copy operation
-{% endhighlight %}
-	</li>
-	<li> Secondly, and more important, you are creating a <strong>strong dependency between your class structure and your API</strong> ( Source and Binary compatibility in API creation will be a future post). Well, let’s return a raw pointer or a <code>shared_ptr</code>:
+```
 
-{% highlight cpp linenos %}
++ Secondly, and more important, you are creating a <strong>strong dependency between your class structure and your API</strong> ( Source and Binary compatibility in API creation will be a future post). Well, let’s return a raw pointer or a <code>shared_ptr</code>
+
+```cpp
 class X {
 public:
   X(): m_y( make_shared<Y>())
@@ -164,9 +165,7 @@ public:
 private:
   std::shared_ptr<Y> m_y;
 };
-{% endhighlight %}
-	</li>
-</ul>
+```
 
 That solution allows us to return <code>m_y</code> in an efficient way, because NO deep-copy is realized. It just makes a light copy, maybe a couple of pointers. In this way, the <code>Y</code> copy complexity does NOT mind. <em>We get a constant order copy operation.</em>
 

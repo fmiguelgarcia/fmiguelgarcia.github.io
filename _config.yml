@@ -11,7 +11,7 @@ title                    : "Miguel's blog"
 title_separator          : "-"
 name                     : "Francisco Miguel García Rodríguez"
 description              : "An amazing website."
-url                      : 
+url                      : "http://fmiguelgarcia.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 gh_repo                  :
 teaser                   : # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"

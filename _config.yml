@@ -20,7 +20,7 @@ words_per_minute         : 200
 comments                 : 
   provider               : "disqus" # false (default), "disqus", "facebook", "google-plus", custom"
   disqus:
-    shortname            : "franciscomiguelgarca" # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+    shortname            : "http://disqus.com/by/franciscomiguelgarca" # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
   facebook:
     # https://developers.facebook.com/docs/plugins/comments
     appid                :

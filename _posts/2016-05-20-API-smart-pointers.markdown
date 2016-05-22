@@ -90,7 +90,9 @@ Raw pointers are **not bad per se**. One problem is that you could have memory l
 However, the big issue is that you have no information about **who is the owner** of the raw pointer, in other words, who bears the **responsibility of deleting it**. Documentation of your API is the only way to solve this and sometimes developers do not read or follow that one (do you remember if you must free the array returned by <code>strerror</code> function?).
 Let’s look the following example:
 
-{% highlight cpp linenos %}Foo* my_function( int* array, int array_size );{% endhighlight %}
+{% highlight cpp linenos %}
+Foo* my_function( int* array, int array_size );
+{% endhighlight %}
 
 Who is the returned pointer owner? Should I delete it after using it or is something internal? **Raw pointers have no information about multithreading therefore we must use synchronization tools like mutex, semaphores, conditions...**
 
@@ -98,7 +100,9 @@ Who is the returned pointer owner? Should I delete it after using it or is somet
 
 As you probably know, this smart pointer **assures memory will be freed when we go out of the scope**. Our previous function will be something like:
 
-{% highlight cpp linenos %}std::unary_ptr<Foo> my_function( int* array, int array_size);{% endhighlight %}
+{% highlight cpp linenos %}
+std::unary_ptr<Foo> my_function( int* array, int array_size);
+{% endhighlight %}
 
 At first glance, future developers of your API will know what will be the scoped of the returned object. Moreover, we also increase the exception guarantee to **“Basic exception safety”** (a.k.a. no-leak guarantee).
 

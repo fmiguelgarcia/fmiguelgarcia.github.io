@@ -2,6 +2,7 @@
 layout: single
 title:  "API, threads, and smart pointers"
 date:   2016-05-20 16:19:48 +0100
+lang: en
 categories: cpp  
 ---
 {% include toc %}

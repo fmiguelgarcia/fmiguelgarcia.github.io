@@ -5,6 +5,8 @@ date:   2016-05-20 16:19:48 +0100
 lang: en
 categories: cpp  
 ---
+What is the Smart Pointers' semantic? How could this affect the asynchronous stage? Creating API needs always an extra effort looking for future advantages: easy to use, asynchronous facilities, reusable, SOLID principles, etc.  
+
 {% include toc %}
 
 # Problem #

@@ -1,24 +1,25 @@
 ---
 layout: single
-title:  "La deuda técnica y el VAN"
+title:  "Technical debt and VAN"
 date:   2016-06-19 16:19:48 +0100
 lang: es
 categories: pmp 
 ---
-Las últimas estadísticas nos dicen que la vida média de un producto software es de 10 años. ¿acaso el software se desgasta como el motor de un viejo coche? ¿llega el momento en el que no se puede reparar más y es mejor comprar uno nuevo?. 
-Bueno, hay muchos factores, pero en esta entrada me gustaría fijarme en la **Deuda técnica**, y como gestionarla desde el punto de vista del PMP.
+Last statistics show us that the software's average lifetime is around 10 years. Does it mean that software is like a engine of an old car? Is there a moment when you can not fix it more and the best way is to buy a new one?
+Well, there are many elements but this entry is about the **Technical Debt** and how you can manage it as a PMP.
 
 {% include toc %}
 
-Pongamos un ejemplo para empezar. Supongamos que eres el Proyect Manager en un proyecto de larga duración,  digamos 4 ó 5 años. Evidentemente, necesitarás una inversión inicial y algo de financiación. Los inversores se preguntarán si el proyecto es una buena inversion, cuánto será el retorno y cuándo será ese retorno. Si los resultados económicos empezarán a verse en el primero, segundo, o el quinto año. En una palabra, el VAT.
+Let's assume that you are a PM in a long time project (4 or 5 years). Obiously, you will need a intial investment and some financing during the project. The investors will ask whether that project is a good investment, how much and when will be ROI. I mean, they need to know the project's VAT.
 
-El el mundo del software, estimamos es coste de cada nueva característica y sabemos cuánto nos va a costar. Pero, ¿realmente implementamos lo que estimamos? No, normalmente surgen problemas, se eleva la complejidad o simplemente los requisitos no se corresponden con las necesidades del cliente.
+In software development world, we usually estimate the cost of each new feature, trying to know what will be the cost associated it. However, do we actually implement what we have estimated before?. No, we don't. Normally new issues arise, the complexity is increased o requirements does not match with the client's needed.
 
-Volviendo a nuestro ejemplo financiero, cada cambio que **no** está planificado en el proyecto es lo mismo que *solicitar financiación*. Es decir, no disponemos de suficiente líquido en un momento determinado y tiramos de servicios financieros externos. Pero esto no es gratis. A ningún administrador se le ocurriría solicitar financiación sin tener en cuenta el coste extra que supondrán los intereses. Lo tildarían de incompetente como mímino. Pues bien, esto sucede a diario en la mundo del desarrollo de software.
- 
-# Pero qué es la deuda técnica #
+Let's come back to our finantial example: each **un-planned** change in the project is like a *request for funding*. It means that we do not have enought cash and we need to use external finantial services. As you know, this loan is not free. No administrator would think to request a loan if the interest rate is unknown. If someone would do that we could think that he/she is imcompetent. Well, this situation occurs everyday in software development. 
 
-**Buscar info de sobre deuda técnica para usar como referencia**.
+# what is the technical debt? #
+
+Basically, **technical debt** is everything that allows us to be **flexible ** meanwhile we are development, to manage changes in our project but we know that we will need to *fix it on the future*. In example, this happens when we discover new requirement which affect the software architecture ##########
+#########
 
 Básicamente, la **deuda técnica** es todo aquello que nos permite **flexibilizar** el desarrollo frente a cambios en el proyecto, pero que deberemos *arreglar en el futuro*. Esto ocurre, por ejemplo, cuando se descubren nuevos requisitos, que normalmente, están fuera del diseño arquitectónico del producto, o cuando nos vemos obligados a usar un *workaround* para solventar algo rápido.
 

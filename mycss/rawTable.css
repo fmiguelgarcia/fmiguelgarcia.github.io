@@ -1,0 +1,32 @@
+table.PIM {
+	border: 1px solid gray;
+    border-collapse: collapse;
+}
+
+th {
+    border: 1px solid gray;
+    padding: 15px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+td.PIM_prob {
+    border-right: 1px solid gray;
+    font-weight: bold;
+}
+td.PMI_Imp {
+    border-top: 1px solid gray;
+    font-weight: bold;
+}
+td.PIM_val_low {
+    background-color: LightGray;
+}
+td.PIM_val_med {
+    background-color: DarkGray ;
+}
+td.PIM_val_hi {
+    background-color: Gray;
+}

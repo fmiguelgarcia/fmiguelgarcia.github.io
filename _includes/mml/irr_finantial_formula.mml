@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+ <semantics>
+  <mtable>
+   <mtr>
+    <mtd>
+     <mrow>
+      <msub>
+       <mi mathvariant="italic">NVP</mi>
+       <mi>N</mi>
+      </msub>
+      <mo stretchy="false">=</mo>
+      <mrow>
+       <mrow>
+        <munderover>
+         <mo stretchy="false">∑</mo>
+         <mrow>
+          <mi>i</mi>
+          <mo stretchy="false">=</mo>
+          <mn>1</mn>
+         </mrow>
+         <mi>N</mi>
+        </munderover>
+        <mrow>
+         <mo fence="true" stretchy="false">(</mo>
+         <mrow>
+          <mfrac>
+           <msub>
+            <mi>C</mi>
+            <mi>t</mi>
+           </msub>
+           <msup>
+            <mrow>
+             <mo fence="true" stretchy="false">(</mo>
+             <mrow>
+              <mrow>
+               <mn>1</mn>
+               <mo stretchy="false">+</mo>
+               <mi mathvariant="italic">IRR</mi>
+              </mrow>
+             </mrow>
+             <mo fence="true" stretchy="false">)</mo>
+            </mrow>
+            <mi>t</mi>
+           </msup>
+          </mfrac>
+         </mrow>
+         <mo fence="true" stretchy="false">)</mo>
+        </mrow>
+       </mrow>
+       <mo stretchy="false">−</mo>
+       <msub>
+        <mi>C</mi>
+        <mi>o</mi>
+       </msub>
+      </mrow>
+      <mo stretchy="false">=</mo>
+      <mn>0</mn>
+     </mrow>
+    </mtd>
+   </mtr>
+   <mtr>
+    <mtd>
+     <mrow>
+      <msub>
+       <mi mathvariant="italic">IRR</mi>
+       <mrow>
+        <mi>n</mi>
+        <mo stretchy="false">+</mo>
+        <mn>1</mn>
+       </mrow>
+      </msub>
+      <mo stretchy="false">=</mo>
+      <mrow>
+       <msub>
+        <mi mathvariant="italic">IRR</mi>
+        <mi>n</mi>
+       </msub>
+       <mo stretchy="false">−</mo>
+       <mrow>
+        <msub>
+         <mi mathvariant="italic">NVP</mi>
+         <mi>n</mi>
+        </msub>
+        <mo stretchy="false">⋅</mo>
+        <mrow>
+         <mo fence="true" stretchy="false">(</mo>
+         <mrow>
+          <mfrac>
+           <mrow>
+            <msub>
+             <mi mathvariant="italic">IRR</mi>
+             <mi>n</mi>
+            </msub>
+            <mo stretchy="false">−</mo>
+            <msub>
+             <mi mathvariant="italic">IRR</mi>
+             <mrow>
+              <mi>n</mi>
+              <mo stretchy="false">−</mo>
+              <mn>1</mn>
+             </mrow>
+            </msub>
+           </mrow>
+           <mrow>
+            <msub>
+             <mi mathvariant="italic">NVP</mi>
+             <mi>n</mi>
+            </msub>
+            <mo stretchy="false">−</mo>
+            <msub>
+             <mi mathvariant="italic">NVP</mi>
+             <mrow>
+              <mi>n</mi>
+              <mo stretchy="false">−</mo>
+              <mn>1</mn>
+             </mrow>
+            </msub>
+           </mrow>
+          </mfrac>
+         </mrow>
+         <mo fence="true" stretchy="false">)</mo>
+        </mrow>
+       </mrow>
+      </mrow>
+     </mrow>
+    </mtd>
+   </mtr>
+  </mtable>
+  <annotation encoding="StarMath 5.0">NVP_N = sum from i=1 to N {(C_t over (1+IRR)^t)} - C_o  = 0 newline 
+IRR_{n+1} = IRR_{ n } - NVP_n cdot ( {IRR_n - IRR_{n-1} } over {NVP_n - NVP_{n-1}} )
+</annotation>
+ </semantics>
+</math>

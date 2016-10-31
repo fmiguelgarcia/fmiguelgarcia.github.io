@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+ <semantics>
+  <mrow>
+   <msub>
+    <mi mathvariant="italic">NVP</mi>
+    <mi>N</mi>
+   </msub>
+   <mo stretchy="false">=</mo>
+   <mrow>
+    <mrow>
+     <munderover>
+      <mo stretchy="false">∑</mo>
+      <mrow>
+       <mi>i</mi>
+       <mo stretchy="false">=</mo>
+       <mn>1</mn>
+      </mrow>
+      <mi>N</mi>
+     </munderover>
+     <mrow>
+      <mo fence="true" stretchy="false">(</mo>
+      <mrow>
+       <mfrac>
+        <msub>
+         <mi>C</mi>
+         <mi>t</mi>
+        </msub>
+        <msup>
+         <mrow>
+          <mo fence="true" stretchy="false">(</mo>
+          <mrow>
+           <mrow>
+            <mn>1</mn>
+            <mo stretchy="false">+</mo>
+            <mi>i</mi>
+           </mrow>
+          </mrow>
+          <mo fence="true" stretchy="false">)</mo>
+         </mrow>
+         <mi>t</mi>
+        </msup>
+       </mfrac>
+      </mrow>
+      <mo fence="true" stretchy="false">)</mo>
+     </mrow>
+    </mrow>
+    <mo stretchy="false">−</mo>
+    <msub>
+     <mi>C</mi>
+     <mn>0</mn>
+    </msub>
+   </mrow>
+  </mrow>
+  <annotation encoding="StarMath 5.0">NVP_N = sum from{i=1} to{N} ( C_t over (1+i)^t)- C_0</annotation>
+ </semantics>
+</math>

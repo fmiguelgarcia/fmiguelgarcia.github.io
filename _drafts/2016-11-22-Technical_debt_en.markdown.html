@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="l.css" type="text/css" />
+</head>
+<body>
+<hr />
+<p>layout: single<br />
+title: &quot;Technical debt and VAN&quot;<br />
+date: 2016-06-19 16:19:48 +0100<br />
+lang: es<br />
+categories: pmp<br />
+---</p>
+<p>Last statistics show us that the software's average lifetime is around 10 years. Does it mean that software is like a engine of an old car? Is there a moment when you can not fix it more and the best way is to buy a new one?<br />
+Well, there are many elements but this entry is about the <strong>Technical Debt</strong> and how you can manage it as a Project Manager.</p>
+<p>{% include toc %}</p>
+<p>Let's assume that you are a PM in a long time project (4 or 5 years). Obviously, you will need a initial investment and some financing during the project. The investors will ask whether that project is a good investment, how much and when will be ROI. I mean, they need to know the project's VAT.</p>
+<p>In software development world, we usually estimate the cost of each new feature, trying to know what will be the cost associated it. However, do we actually implement what we have estimated before?. No, we don't. Normally new issues arise, the complexity is increased o requirements does not match with the client's needed.</p>
+<p>Let's come back to our financial example: each <strong>un-planned</strong> change in the project is like a <em>request for funding</em>. It means that we do not have enough cash and we need to use external financial services. As you know, this loan is not free. No administrator would think to request a loan if the interest rate is unknown. If someone would do that we could think that he/she is incompetent. Well, this situation occurs everyday in software development.</p>
+<h1 id="what-is-the-technical-debt">what is the technical debt?</h1>
+<p>Basically, <strong>technical debt</strong> is everything that allows us to be <strong>flexible </strong> meanwhile we are development, to manage changes in our project but we know that we will need to <em>fix it on the future</em>. In example, this happens when we discover new requirements which affect the software architecture, or when we need to use a <em>workaround</em> to fix something quickly.</p>
+<p>When we have found new requirements, it is similar to request a loan, and the final technical debt interests will be increased. We usually try to add those new requirements with no modifications into our base primary lines (time, cost, or scope). If our contingency reserve is empty, and our quality base line absorbs the impact, this is also part of the <strong>technical debt</strong>. For instance, if we reduce the amount of test then we increase the probability of errors, especially expensive on production time.</p>
+<p>When we make a quick <em>workaround</em>, we could likely avoid a delay on the deployment but we are also increasing our <em>technical debt</em>. That means that we have reduced the <strong>time to market</strong> but we have left pending a future fix. If these <em>workaround</em> is isolated, it won't probably affect us. However components are usually interconnected, and that pending change will increase the development time of new features on the future.</p>
+<p>A good approach is to group related <strong>technical debts</strong> and fix them together (like multiple loan example): It is called <strong>re-factoring</strong>.</p>
+<h1 id="refactoring-pay-your-debt">Refactoring: pay your debt</h1>
+<p>Refactoring can be classified as:</p>
+<ul>
+<li><p><strong>Pro-active Refactoring</strong>. It the best one because is <em>optional</em> (at the moment) and it allows us to plan when and how achieve it (or still leave it until later). Other big advantage is that it gives us information about the <em>team status</em>. Whether we have a lot of change requests coming from the team (pro-activity) that means that the team engagement is high. Otherwise we likely invest some resources to get that engagement. A demotivated team is the worst thing into a project.</p></li>
+<li><p><strong>Mandatory Refactoring</strong>. We have no alternative and we have to pay right now to get the new feature. In our financial example, it means that we have been into a court process and we have lost it. In this case, we have lost the flexibility.</p></li>
+</ul>
+<h1 id="manage-the-technical-debt">Manage the technical debt</h1>
+<p>In the same way that each administrator keeps under control the financial aspect, we also have to manage our <em>technical debt</em>. Our suggestion is to <em>manage each technical debt as a new risk</em> and link it to a module. Like other risk, we have to calculate the probability and the impact (using the relation index of that module). The estimation cost should be proportionate by the technical team.</p>
+<p>After that initial classification, we need to evaluate the technical debt over-cost. We use the <strong>VAT</strong> concept but instead of time we will use the amount of <strong>interconnected modules</strong>. It means that a debt affects 5 first components should be more expensive that one only affects a module used by just one client.</p>
+<h1 id="technical-debt-cualification-and-cuantification">Technical debt cualification and cuantification</h1>
+<p>As risk management, we have got a <em>Probability and Impact Matrix</em>. However, the <em>impact</em> concept is replaced by the number of related modules that could be affected by this debt. <em>Probability</em> should be calculate for each software deployment. It means that if the next deploy has no modules affected by the specific debt, then its probability is less than 0.1.<br />
+This matrix allows us to prioritise the payment of our technical debt along development iterations and get better contingency reserve.</p>
+<div style="overflow-x:auto;">
+<table class="PIM">
+    <tr>
+        <th>Probability<br/>(Iteration)</th>
+        <th colspan="5">Technical Debt Threat</th>
+    </tr>
+    <tr>
+        <td class="PIM_prob">0.90</td>
+        <td class="PIM_val_low">0.05</td>
+        <td class="PIM_val_med">0.09</td>
+        <td class="PIM_val_hi">0.18</td>
+        <td class="PIM_val_hi">0.36</td>
+        <td class="PIM_val_hi">0.72</td>
+    </tr>
+    <tr>
+        <td class="PIM_prob">0.70</td>
+        <td class="PIM_val_low">0.04</td>
+        <td class="PIM_val_med">0.07</td>
+        <td class="PIM_val_med">0.14</td>
+        <td class="PIM_val_hi">0.28</td>
+        <td class="PIM_val_hi">0.56</td>
+    </tr>
+    <tr>
+        <td class="PIM_prob">0.50</td>
+        <td class="PIM_val_low">0.03</td>
+        <td class="PIM_val_low">0.05</td>
+        <td class="PIM_val_med">0.10</td>
+        <td class="PIM_val_hi">0.20</td>
+        <td class="PIM_val_hi">0.40</td>
+    </tr>
+    <tr>
+        <td class="PIM_prob">0.30</td>
+        <td class="PIM_val_low">0.02</td>
+        <td class="PIM_val_low">0.03</td>
+        <td class="PIM_val_med">0.06</td>
+        <td class="PIM_val_med">0.12</td>
+        <td class="PIM_val_hi">0.24</td>
+    </tr>
+    <tr>
+        <td class="PIM_prob">0.10</td>
+        <td class="PIM_val_low">0.01</td>
+        <td class="PIM_val_low">0.01</td>
+        <td class="PIM_val_low">0.02</td>
+        <td class="PIM_val_low">0.04</td>
+        <td class="PIM_val_med">0.08</td>
+    </tr>
+    <tr>
+        <td class="PMI_Imp"/>
+        <td class="PMI_Imp">0.05<br/>Very Low</td>
+        <td class="PMI_Imp">0.10<br/>Low</td>
+        <td class="PMI_Imp">0.20<br/>Moderate</td>
+        <td class="PMI_Imp">0.40<br/>High</td>
+        <td class="PMI_Imp">0.80<br/>Very Hight</td>
+    </tr>
+</table>
+</div>
+<p>An template</p>
+<table>
+    <tr>
+        <td>Technical debt ID</td>
+        <td>rtd-001</td>
+        <td>Iteration</td>
+        <td>2</td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <table class="inner">
+                <tr>
+                    <td>Probability</td>
+                    <td>0.50</td>
+                    <td>Impact</td>
+                    <td>0.40</td>
+                </tr>
+                <tr>
+                    <td colspan="2">PI index (PxI)</td>
+                    <td colspan="2">0.20</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">Affected Modules Count</td>
+        <td>3</td>
+    </tr>
+    <tr>
+        <td colspan="3">Estimation</td>
+        <td>45 h</td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <table>
+                <tr><td colspan="2">Description</td></tr>
+                <tr>
+                    <td>2016-9-20</td>
+                    <td>Sort description and technical notes</td>
+                </tr>
+                <tr>
+                    <td>2016-10-1</td>
+                    <td>More technical detail</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <table>
+                <tr><th>Modules</th></tr>
+                <tr><td>Mod 1</td></tr>
+                <tr><td>Mod 2</td></tr>
+                <tr><td>Mod 3</td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<h1 id="calculo-del-valor-de-deuda-tecnica">Cálculo del valor de deuda técnica</h1>
+<p>[VAT]</p>
+<h1 id="dont-do">Don't do</h1>
+<p>There is only one error that we</p>
+<p>Pensar que esa pequeña deuda no afectara es el único error que no podemos permitirnos como PMP. Podemos mantener los riesgos bajo control con las plantillas, pero esto exige que el proyecto esté perfectamente dividio en paquetes funcionales y un trabajo bastante cercano con el equipo arquitectónico de software y, por supuesto, muy alineado con el portfolio de la empresa.<br />
+Otra opción, mucho más sencilla, aunque menos flexible, es reservar un ancho de banda entre cada iteración para resolver todos esos problemas o cambios en el diseño. Siempre al principio de la nueva iteración y limitados en el tiempo, para afectar lo mínimo posible la entraga de las nuevas funcionalidades.</p>
+<h1 id="hypes-y-su-muerte-anunciada">hypes y su muerte anunciada</h1>
+<p>En este negocio, cada cierto tiempo, surgen nuevos hyppes a los que todo el mundo parece venir bien. Esas nuevas tendencias suelen presentarse como una <em>bala de plata</em>: resuleven todos los problemas, son muy fáciles de usar y todo el mundo está feliz con los resultados. Algunos de estos últimos hyppes son el <strong>Agile</strong> (ver <a href="https://www.linkedin.com/pulse/agile-dead-matthew-kern">Agile está muerto</a>) o el omnipresente <strong>Big Data</strong> donde sólo el <a href="https://www.capgemini-consulting.com/resource-file-access/resource/pdf/cracking_the_data_conundrum-big_data_pov_13-1-15_v2.pdf">27% de los ejecutivos describen sus iniciativas en Big Data como existosas</a>).</p>
+<p>La gran ventaja de estos hypes es que los proyectos que los usan no sufren apenas deuda técnica. Sin embargo, a lo largo del tiempo y su evolución, el peso de esa deuda se va incrementando. Existen incluso casos donde se vuelve imposible la continuidad del desarrollo.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>He tenido la suerte de trabajar en bastantes projectos de larga duración (más de 10 años de desarrollo cuando me incorporé a ellos), y por supuesto con una gran deuda técnica heredada. El gran problema es que esa deuda no es visible a la capa de gestión hasta que no llega a niveles muy alarmantes. Es imposible pretender tener equipos de alto rendimiento(equipos Agile) cuando estos gastan más del 40% de su tiempo de desarrollo en lidiar con esa deuda. ¿Cómo le dices a tus stackeholders que el producto es un 40% más caro o que la velocidad del equipo es de sólo el 60%? y además, si no actuamos ya, el año que viene puede que se incrmente hasta un 42%. Esto acaba con la desmotivación de los equipos, el incremento del <strong>time to market</strong>, y como resultado la perdida de competencia y de negocio.</p>
+<p>Es comprensible pensar que en un proyecto que lleva años de desarrollo y evolución, el coste de evaluar esa deuda técnica, puede ser notable. Pero veámoslo desde el punto de vista financiero, ¿alguien se atrevería a comprar una casa y empezar a hacer reformas sin comprobar previamente si tiene cargas previas? Muchas veces, portar la idea del mundo abstracto del software a un ejemplo más habitual, puede ayudar a hacer comprender a los stackeholders de la necesidad de este proceso.</p>
+</body>
+</html>

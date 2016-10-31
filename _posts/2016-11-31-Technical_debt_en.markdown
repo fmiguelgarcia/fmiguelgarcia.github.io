@@ -26,7 +26,7 @@ In this section I'm going to introduce some concepts. If you are already familia
 
 ## ... the technical debt? (developer skill) ##
 
-Basically, **technical debt** is everything that allows us to be **flexible ** meanwhile we are implementing changes in our project which we already know that will be *fixed in future*. For instance, this happens when we discover new requirements which affect the software architecture, or when we need to use a *workaround* to fix quickly something.
+Basically, **technical debt** is everything that allows us to be **flexible** meanwhile we are implementing changes in our project which we already know that will be *fixed in future*. For instance, this happens when we discover new requirements which affect the software architecture, or when we need to use a *workaround* to fix quickly something.
 
 When we have found new requirements, it is similar to request a loan, and the final technical debt interests will be increased. We usually try to add those new requirements with no modifications into our primary base lines (time, cost, and scope). When our contingency reserve is empty, and our quality base line absorbs the impact, this is also part of the **technical debt**. For instance, if we reduce the amount of test, then we increase the probability of errors.
 
@@ -101,9 +101,12 @@ First of all, don't worry about the following formulas because your SpreadSheet 
 
 
 Where:
- - **C<sub>t</sub>** is the _net cash flow_, i.e. inflow - outflow, at time *t*.
- - **C<sub>0</sub>** is the net cash flow at the beginning. It means the _initial investment_.
- - **i** is the _discount rate_. We could use a fixed rate investment or any other similar risk rate investment.
+
+<ul>
+ <li> **C<sub>t</sub>** is the _net cash flow_, i.e. inflow - outflow, at time *t*.</li>
+ <li> **C<sub>0</sub>** is the net cash flow at the beginning. It means the _initial investment_.</li>
+ <li> **i** is the _discount rate_. We could use a fixed rate investment or any other similar risk rate investment. </li>
+</ul>
 
 We could classify the projects using the following table based on NVP result:
 
@@ -319,7 +322,8 @@ This matrix allows us to prioritise the payment of our technical debt along deve
     </tr>
 </table>
 
-An template
+
+Template to manage refactors
 
 <table>
     <tr>
@@ -493,7 +497,7 @@ In this business, from time to time, new hypes are coming up and they become the
 
 Some of those last hypes are:
  - **Agile**, please read [Agile dead](https://www.linkedin.com/pulse/agile-dead-matthew-kern) or read about hybrid agile (agile + waterfall).
- - Or **Big Data** where just the [27% of executives describe their Big Data initiatives as  successful](https://www.capgemini-consulting.com/resource-file-access/resource/pdf/cracking_the_data_conundrum-big_data_pov_13-1-15_v2.pdf)).
+ - Or **Big Data** where just the [27% of executives describe their Big Data initiatives as  successful](https://www.capgemini-consulting.com/resource-file-access/resource/pdf/cracking_the_data_conundrum-big_data_pov_13-1-15_v2.pdf).
 
 The big advantage of those hypes is that projects have hardly any **technical debt and they could still be high efficient projects**. Nevertheless, over time the weight of **technical debt** is increasing. I have faced to projects where the cost of a new development from scratch was cheaper than fix the current one.
 

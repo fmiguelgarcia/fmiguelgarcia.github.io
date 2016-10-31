@@ -44,7 +44,63 @@ First of all, don't worry about the following formulas because your SpreadSheet 
 
 **NPV** is the acronym of **Net Present Value**, and it is *the difference between the present value of cash inflows and the present value of cash outflows*. In PMP, we use that to analyse the profitability of a project investment. As a financial dynamic indicator, the NPV formula is:
 
-<object data="../_includes/mml/nvp_financial_formula.mml" type="text/xml"></object>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+ <semantics>
+  <mrow>
+   <msub>
+    <mi mathvariant="italic">NVP</mi>
+    <mi>N</mi>
+   </msub>
+   <mo stretchy="false">=</mo>
+   <mrow>
+    <mrow>
+     <munderover>
+      <mo stretchy="false">∑</mo>
+      <mrow>
+       <mi>i</mi>
+       <mo stretchy="false">=</mo>
+       <mn>1</mn>
+      </mrow>
+      <mi>N</mi>
+     </munderover>
+     <mrow>
+      <mo fence="true" stretchy="false">(</mo>
+      <mrow>
+       <mfrac>
+        <msub>
+         <mi>C</mi>
+         <mi>t</mi>
+        </msub>
+        <msup>
+         <mrow>
+          <mo fence="true" stretchy="false">(</mo>
+          <mrow>
+           <mrow>
+            <mn>1</mn>
+            <mo stretchy="false">+</mo>
+            <mi>i</mi>
+           </mrow>
+          </mrow>
+          <mo fence="true" stretchy="false">)</mo>
+         </mrow>
+         <mi>t</mi>
+        </msup>
+       </mfrac>
+      </mrow>
+      <mo fence="true" stretchy="false">)</mo>
+     </mrow>
+    </mrow>
+    <mo stretchy="false">−</mo>
+    <msub>
+     <mi>C</mi>
+     <mn>0</mn>
+    </msub>
+   </mrow>
+  </mrow>
+  <annotation encoding="StarMath 5.0">NVP_N = sum from{i=1} to{N} ( C_t over (1+i)^t)- C_0</annotation>
+ </semantics>
+</math>
+<!--object data="../_includes/mml/nvp_financial_formula.mml" type="text/xml"></object-->
 
 Where:
  - **C~t~** is the ++net cash flow++, i.e. inflow - outflow, at time *t*.
@@ -61,7 +117,7 @@ We could classify the projects using the following table based on NVP result:
 
 **IRR** is the **Internal Rate of Return**: a discount rate that *makes the net present value (NPV) of all cash flows from a particular project equal to ++zero++*.
 
-<object data="../_includes/mml/irr_financial_formula.mml" type="text/xml"></object>
+<embed data="../_includes/mml/irr_financial_formula.mml" type="text/xml"/>
 
 However ++we need to transform each financial concept to our **technical debt** templates++( see **Technical Debt Calculation** section).
 

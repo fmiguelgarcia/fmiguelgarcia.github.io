@@ -18,7 +18,7 @@ Well, there are many influential factors but this entry is about the **technical
 
 Let's assume that you are a PM in a long time project (4 or 5 years) and obviously, you will need a initial investment and some financing during the project. Investors will ask whether that project is a good investment, what and when will be the ROI. I mean, they could need to know the project's **NVP** and **IRR**.
 
-In software development world, we usually ++estimate the cost of each new feature++, trying to know what will be the cost associated. However, do we actually implement what we estimated before?. No, we don't. Normally new issues arise, the complexity is increased or requirements do not match with the client's needed.
+In software development world, we usually _estimate the cost of each new feature_, trying to know what will be the cost associated. However, do we actually implement what we estimated before?. No, we don't. Normally new issues arise, the complexity is increased or requirements do not match with the client's needed.
 
 > This entry introduces an indicator to evaluate software refactoring process and **it could be extremely useful when you have to explain to your stakeholders** the cost of avoiding a refactoring. During the planning, those indicators will **help you to prioritize each refactoring** process to get the best performance.
 
@@ -35,12 +35,12 @@ When we have found new requirements, it is similar to request a loan, and the fi
 
 > New requirements on the scope usually are similar to a new loan request on financial management. Team could be flexible and agile, but at the end we will pay our "debt interests".
 
-When we make a quick *workaround*, we could likely avoid a delay on the deployment but we are also increasing our **technical debt**. That means that we have ++reduced the **time to market**++ but we have left pending a future fix. If these *workaround* is isolated, it won't probably affect us. However components are usually interconnected, and that pending change will increase the development time of new features on the future.
+When we make a quick *workaround*, we could likely avoid a delay on the deployment but we are also increasing our **technical debt**. That means that we have _reduced the **time to market**_ but we have left pending a future fix. If these *workaround* is isolated, it won't probably affect us. However components are usually interconnected, and that pending change will increase the development time of new features on the future.
 
 A good approach is grouping related **technical debts** and fix them together (like multiple loan example): It is called **re-factoring**.
 
 ## ... NPV and IRR? (PMP skill) ##
-First of all, don't worry about the following formulas because your SpreadSheet (Microsoft Excel or LibreOffice) has ++simple functions to manage them++: functions NVP and IRR.
+First of all, don't worry about the following formulas because your SpreadSheet (Microsoft Excel or LibreOffice) has _simple functions to manage them_: functions NVP and IRR.
 
 **NPV** is the acronym of **Net Present Value**, and it is *the difference between the present value of cash inflows and the present value of cash outflows*. In PMP, we use that to analyse the profitability of a project investment. As a financial dynamic indicator, the NPV formula is:
 
@@ -104,9 +104,9 @@ First of all, don't worry about the following formulas because your SpreadSheet 
 
 
 Where:
- - **C~t~** is the ++net cash flow++, i.e. inflow - outflow, at time *t*.
- - **C~0~** is the net cash flow at the beginning. It means the ++initial investment++.
- - **i** is the ++discount rate++. We could use a fixed rate investment or any other similar risk rate investment.
+ - **C~t~** is the _net cash flow_, i.e. inflow - outflow, at time *t*.
+ - **C~0~** is the net cash flow at the beginning. It means the _initial investment_.
+ - **i** is the _discount rate_. We could use a fixed rate investment or any other similar risk rate investment.
 
 We could classify the projects using the following table based on NVP result:
 
@@ -116,7 +116,7 @@ We could classify the projects using the following table based on NVP result:
 |    < 0    | Project would subtract value from the company | Project may be rejected |
 |    = 0    | Project would neither add or subtract value | No information, we should use other criteria |
 
-**IRR** is the **Internal Rate of Return**: a discount rate that *makes the net present value (NPV) of all cash flows from a particular project equal to ++zero++*.
+**IRR** is the **Internal Rate of Return**: a discount rate that *makes the net present value (NPV) of all cash flows from a particular project equal to _zero_*.
 
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
  <semantics>
@@ -253,13 +253,13 @@ IRR_{n+1} = IRR_{ n } - NVP_n cdot ( {IRR_n - IRR_{n-1} } over {NVP_n - NVP_{n-1
 </math>
 <!--embed data="../_includes/mml/irr_financial_formula.mml" type="text/xml"/-->
 
-However ++we need to transform each financial concept to our **technical debt** templates++( see **Technical Debt Calculation** section).
+However _we need to transform each financial concept to our **technical debt** templates_( see **Technical Debt Calculation** section).
 
 Using **NVP**, we could evaluate the viability and profitability of a project overtime. Let's see the example below to clarify both concepts.
 
 ### NVP and IRR simple example ###
 
-Let's assume that we have three projects, their cash-flow estimations (CF) and a ++discount rate++ equal to **5%** .
+Let's assume that we have three projects, their cash-flow estimations (CF) and a _discount rate_ equal to **5%** .
 
 | Project | Init Investment (C~0~) | CF 1st year (C~1~) | CF 2nd year (C~2~) | CF 3rd year (C~3~) |
 |:-------:|:--------------------:|:-----------------:|:-----------------:|:-----------------:|
@@ -375,7 +375,7 @@ An template
 
 We only need a little modification in NVP formula to apply to our **technical debt** calculation:
 1. Instead of use years or any period time (t), we will use the released feature.
-2. The **cash flow** ++is the difference between the cost of doing nothing and the cost of applying the refactor++.
+2. The **cash flow** _is the difference between the cost of doing nothing and the cost of applying the refactor_.
 
 Let's start an example. We have to develop and deploy three new features in our product/project. Team has identified two possible refactors, and modules are affected by each of those refactor. Next step is to generate the feature associated estimations, using different scenarios (no refactor, refactor A and refactor B). The following table represents those estimations:
 

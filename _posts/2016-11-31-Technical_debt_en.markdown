@@ -1,7 +1,7 @@
 ---
 layout: single
-title:  "Technical debt as dynamic indicators: VAN and TIR"
-date:   2016-06-19 16:19:48 +0100
+title:  "Technical debt using dynamic indicators: NVP and IRR"
+date:   2016-11-30 10:19:48 +0100
 lang: es
 categories: pmp
 ---
@@ -406,7 +406,7 @@ Let's start an example. We have to develop and deploy three new features in our 
     	<td>Mod 4</td> <td>0</td> <td>0</td> <td>0</td> <td>0</td> <td>0</td> <td>0</td> <td>90</td> <td>40</td> <td>20</td>
     </tr>
     <tr>
-    	<td>**Subtotals**</td> <td>**140**</td> <td>**140**</td> <td>**130**</td> <td>**130**</td> <td>**60**</td> <td>**130**</td> <td>**180**</td> <td>**60**</td> <td>**70**</td>
+    	<td><strong>Subtotals</strong></td> <td><strong>140</strong></td> <td><strong>140</strong></td> <td><strong>130</strong></td> <td><strong>130</strong></td> <td><strong>60</strong></td> <td><strong>130</strong></td> <td><strong>180</strong></td> <td><strong>60</strong></td> <td><strong>70</strong></td>
     </tr>
 </table>
 
@@ -442,13 +442,13 @@ Let's translate this information to cost:
     	<td>Mod 4</td> <td>$0</td> <td>$0</td> <td>$0</td> <td>$0</td> <td>$0</td> <td>$0</td> <td>$4,500</td> <td>$2,000</td> <td>$1,000</td>
     </tr>
     <tr>
-    	<td>**Subtotals**</td> <td>$7,000</td> <td>$7,000</td> <td>$6,500</td> <td>$6,500</td> <td>$3,000</td> <td>$6,500</td> <td>$9,000</td> <td>$3,000</td> <td>$3,500</td>
+    	<td><strong>Subtotals</strong></td> <td>$7,000</td> <td>$7,000</td> <td>$6,500</td> <td>$6,500</td> <td>$3,000</td> <td>$6,500</td> <td>$9,000</td> <td>$3,000</td> <td>$3,500</td>
     </tr>
     <tr>
     	<th colspan="2"/> <th>CashFlow A</th> <th>CashFlow B</th> <th/> <th>CashFlow A</th> <th>CashFlow B</th> <th/> <th>CashFlow A</th> <th>CashFlow B</th> <th/>
     </tr>
     <tr>
-    	<td colspan="2">CashFlow = Base - Refactor</td> <td>$0</td> <td>**$500**</td> <td/> <td>**$3,500**</td> <td>$0</td> <td/> <td>**$6,500**</td> <td>**$5,500**</td> <td/>
+    	<td colspan="2">CashFlow = Base - Refactor</td> <td>$0</td> <td><strong>$500</strong></td> <td/> <td><strong>$3,500</strong></td> <td>$0</td> <td/> <td><strong>$6,500</strong></td> <td><strong>$5,500</strong></td> <td/>
     </tr>
 </table>
 
@@ -459,7 +459,7 @@ Now, using this data, we will calculate the **NVP** and **IRR**, using a 5.00% o
     	<th/> <th>Refactor A</th> <th>Refactor B</th>
     </tr>
     <tr>
-    	<td>**Initial Cost**</td> <td>$ -2,000</td> <td>$ -1,500</td>
+    	<td><strong>Initial Cost</strong></td> <td>$ -2,000</td> <td>$ -1,500</td>
     </tr>
     <tr>
     	<td>Feature 1</td> <td>$0</td> <td>$500</td>
@@ -471,10 +471,10 @@ Now, using this data, we will calculate the **NVP** and **IRR**, using a 5.00% o
     	<td>Feature 3</td> <td>$6,000</td> <td>$5,500</td>
     </tr>
     <tr>
-    	<td>**NVP**</td> <td>$6,357.63</td> <td>$3,727.30</td>
+    	<td><strong>NVP</strong></td> <td>$6,357.63</td> <td>$3,727.30</td>
     </tr>
     <tr>
-    	<td>**IRR**</td> <td>83.89%</td> <td>66.15%</td>
+    	<td><strong>IRR</strong></td> <td>83.89%</td> <td>66.15%</td>
     </tr>
 </table>
 

@@ -103,9 +103,9 @@ First of all, don't worry about the following formulas because your SpreadSheet 
 Where:
 
 <ul>
- <li> **C<sub>t</sub>** is the _net cash flow_, i.e. inflow - outflow, at time *t*.</li>
- <li> **C<sub>0</sub>** is the net cash flow at the beginning. It means the _initial investment_.</li>
- <li> **i** is the _discount rate_. We could use a fixed rate investment or any other similar risk rate investment. </li>
+ <li><strong>C<sub>t</sub></strong> is the _net cash flow_, i.e. inflow - outflow, at time <em>t</em>.</li>
+ <li><strong>C<sub>0</sub></strong> is the net cash flow at the beginning. It means the <em>initial investment</em>.</li>
+ <li><strong>i</strong> is the <em>discount rate</em>. We could use a fixed rate investment or any other similar risk rate investment.</li>
 </ul>
 
 We could classify the projects using the following table based on NVP result:

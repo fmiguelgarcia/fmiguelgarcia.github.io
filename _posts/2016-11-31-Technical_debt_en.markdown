@@ -4,13 +4,7 @@ title:  "Technical debt as dynamic indicators: VAN and TIR"
 date:   2016-06-19 16:19:48 +0100
 lang: es
 categories: pmp
-customjs:
- - http://fred-wang.github.io/mathml.css/mspace.js
 ---
-
-<script src="http://fred-wang.github.io/mathml.css/mspace.js">
-</script>
-
 Last studies show us that the software's average lifetime is around 10 years. Does it mean that software is like a engine of an old car? Is there a time when you cannot fix it more and the best option is to buy a new one?
 Well, there are many influential factors but this entry is about the **technical debt** and how you can manage it as a Project Manager.
 
@@ -23,6 +17,9 @@ In software development world, we usually _estimate the cost of each new feature
 > This entry introduces an indicator to evaluate software refactoring process and **it could be extremely useful when you have to explain to your stakeholders** the cost of avoiding a refactoring. During the planning, those indicators will **help you to prioritize each refactoring** process to get the best performance.
 
 Let's come back to our financial example: each **un-planned** change in the project is like a *request for funding*. It means that we do not have enough cash and we need to use external financial services. As you know, this loan is not free. Any administrator would think to request a loan if the interest rate is unknown. If someone did that, we could think that he/she is incompetent. Well, this situation occurs everyday in software development.
+
+<script src="http://fred-wang.github.io/mathml.css/mspace.js">
+</script>
 
 # What is ...  #
 In this section I'm going to introduce some concepts. If you are already familiar with those concepts, please move to the next section.
@@ -104,8 +101,8 @@ First of all, don't worry about the following formulas because your SpreadSheet 
 
 
 Where:
- - **C~t~** is the _net cash flow_, i.e. inflow - outflow, at time *t*.
- - **C~0~** is the net cash flow at the beginning. It means the _initial investment_.
+ - **C<sub>t</sub>** is the _net cash flow_, i.e. inflow - outflow, at time *t*.
+ - **C<sub>0</sub>** is the net cash flow at the beginning. It means the _initial investment_.
  - **i** is the _discount rate_. We could use a fixed rate investment or any other similar risk rate investment.
 
 We could classify the projects using the following table based on NVP result:
@@ -116,7 +113,7 @@ We could classify the projects using the following table based on NVP result:
 |    < 0    | Project would subtract value from the company | Project may be rejected |
 |    = 0    | Project would neither add or subtract value | No information, we should use other criteria |
 
-**IRR** is the **Internal Rate of Return**: a discount rate that *makes the net present value (NPV) of all cash flows from a particular project equal to _zero_*.
+**IRR** is the **Internal Rate of Return**: a discount rate that *makes the net present value (NPV) of all cash flows from a particular project equal to zero*.
 
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
  <semantics>
@@ -261,7 +258,7 @@ Using **NVP**, we could evaluate the viability and profitability of a project ov
 
 Let's assume that we have three projects, their cash-flow estimations (CF) and a _discount rate_ equal to **5%** .
 
-| Project | Init Investment (C~0~) | CF 1st year (C~1~) | CF 2nd year (C~2~) | CF 3rd year (C~3~) |
+| Project | Init Investment (C<sub>0</sub>) | CF 1st year (C<sub>1</sub>) | CF 2nd year (C<sub>2</sub>) | CF 3rd year (C<sub>3</sub>) |
 |:-------:|:--------------------:|:-----------------:|:-----------------:|:-----------------:|
 | A       | -200                 | 50                | 100               | 200               |
 | B       | -300                 | 70                | 70                | 170     	         |
@@ -269,7 +266,7 @@ Let's assume that we have three projects, their cash-flow estimations (CF) and a
 
 Calculating NVP and IRR for each project:
 
-| Project | SUM(C~i~)|  NVP   |   IRR   |
+| Project | SUM(C<sub>i</sub>)|  NVP   |   IRR   |
 |:-------:|:--------:|:------:|:-------:|
 | A       | 150      | 111.09  | 26.73%  |
 | B       | 10       | -22.99  | 1.42%   |

@@ -26,15 +26,15 @@ In this section I'm going to introduce some concepts. If you are already familia
 
 ## ... the technical debt? (developer skill) ##
 
-Basically, **technical debt** is everything that allows us to be **flexible** meanwhile we are implementing changes in our project which we already know that will be *fixed in future*. For instance, this happens when we discover new requirements which affect the software architecture, or when we need to use a *workaround* to fix quickly something.
+Basically, **technical debt** is everything that allows us to be **flexible** meanwhile we are implementing changes in our project which we already know that will be *fixed in future*. For instance, this happens when we discover new requirements which affect the software architecture, or when we need to use a *workaround* to fix something quickly.
 
 When we have found new requirements, it is similar to request a loan, and the final technical debt interests will be increased. We usually try to add those new requirements with no modifications into our primary base lines (time, cost, and scope). When our contingency reserve is empty, and our quality base line absorbs the impact, this is also part of the **technical debt**. For instance, if we reduce the amount of test, then we increase the probability of errors.
 
 > New requirements on the scope usually are similar to a new loan request on financial management. Team could be flexible and agile, but at the end we will pay our "debt interests".
 
-When we make a quick *workaround*, we could likely avoid a delay on the deployment but we are also increasing our **technical debt**. That means that we have _reduced the **time to market**_ but we have left pending a future fix. If these *workaround* is isolated, it won't probably affect us. However components are usually interconnected, and that pending change will increase the development time of new features on the future.
+When we make a quick *workaround*, we could likely avoid a delay on the deployment but we are also increasing our **technical debt**. That means that we have _reduced the **time to market**_ but we have left a future fix pending. If these *workaround* is isolated, it won't probably affect us. However components are usually interconnected, and that pending change will increase the development time of new features on the future.
 
-A good approach is grouping related **technical debts** and fix them together (like multiple loan example): It is called **re-factoring**.
+A good approach is to group related **technical debts** and fix them together (like multiple loan example): It is called **re-factoring**.
 
 ## ... NPV and IRR? (PMP skill) ##
 First of all, don't worry about the following formulas because your SpreadSheet (Microsoft Excel or LibreOffice) has _simple functions to manage them_: functions NVP and IRR.
@@ -283,7 +283,7 @@ Now that we understand NVP and IRR concepts, we could apply them to our refactor
 
 Refactoring can be classified as:
 
-- **Pro-active Refactoring**. It the best one because is *optional* (at the moment) and it allows us to plan when and how achieve it (or even leave it). Other big advantage is that it gives us information about the *team status*. Whether we have a lot of change requests coming from the team (pro-activity) that means that the team engagement is high. Otherwise, we likely invest some resources to get that engagement. A demotivated team is one of the worst things in a project.
+- **Pro-active Refactoring**. Is the best one because is *optional* (at the moment) and it allows us to plan when and how to achieve it (or even leave it). Other big advantage is that it gives us information about the *team status*. Whether we have a lot of change requests coming from the team (pro-activity) that means that the team engagement is high. Otherwise, we likely invest some resources to get that engagement. A demotivated team is one of the worst things in a project.
 
 - **Mandatory Refactoring**. We have no alternatives and we have to pay right now to get the new feature. In our financial example, it means that we have been into a court process and we have lost it. In that case, we have lost the flexibility.
 
@@ -295,7 +295,7 @@ After that initial classification, we need to evaluate the over-cost of the tech
 
 ## Technical debt qualification and quantification##
 
-As risk management, we have got a *Probability and Impact Matrix*. However, the *impact* concept is replaced by the number of related modules that could be affected by this debt. *Probability* should be calculate for each software deployment. It means that if the next deploy has no affected modules, then its probability is less than 0.1. 
+As risk management, we have got a *Probability and Impact Matrix*. However, the *impact* concept is replaced by the number of related modules that could be affected by this debt. *Probability* should be calculated for each software deployment. It means that if the next deploy has no affected modules, then its probability is less than 0.1. 
 This matrix allows us to prioritise the payment of our technical debt along development iterations and get better contingency reserve.
 
 <table>
@@ -375,10 +375,10 @@ Template to manage refactors
 ## Technical Debt Calculation ##
 
 We only need a little modification in NVP formula to apply to our **technical debt** calculation:
-1. Instead of use years or any period time (t), we will use the released feature.
+1. Instead of using years or any period time (t), we will use the released feature.
 2. The **cash flow** _is the difference between the cost of doing nothing and the cost of applying the refactor_.
 
-Let's start an example. We have to develop and deploy three new features in our product/project. Team has identified two possible refactors, and modules are affected by each of those refactor. Next step is to generate the feature associated estimations, using different scenarios (no refactor, refactor A and refactor B). The following table represents those estimations:
+Let's start an example. We have to develop and deploy three new features in our product/project. Team has identified two possible refactors, and modules are affected by each of those refactors. Next step is to generate the feature associated estimations, using different scenarios (no refactor, refactor A and refactor B). The following table represents those estimations:
 
 <table>
 	<tr>
@@ -452,7 +452,7 @@ Let's translate this information to cost:
     </tr>
 </table>
 
-Now, using this data, we will calculate the **NVP** and **IRR**, using a 5.00% of discount rate.
+Now, using this data, we will calculate the **NVP** and **IRR**, using a 5.00% discount rate.
 
 <table>
 	<tr>
@@ -487,11 +487,11 @@ Thinking that a little **technical debt** will not affect the project is an erro
 
 > We should **never ignore** the issue behind a refactor requested by developers.
 
-Other option, less flexible but simpler, is to allocate bandwidth in every iteration to solve some refactors. However this only works whether your stakeholders engagement is high.
+Other option, less flexible but simpler, is to allocate bandwidth in every iteration to solve some refactors. However this only works if your stakeholders engagement is high.
 
 # Hypes:  Chronicle of a Death Foretold #
 
-In this business, from time to time, new hypes are coming up and they become the "silver bullet" for every technical issue. Maybe you can hear that they solve each of your problems or they are extremely easy to use, or (the best of one) they work well on other companies. Generally, these hypes are really good for specific situations but general environments. So pay attention to the  constraints of the hype.
+In this business, from time to time, new hypes are coming up and they become the "silver bullet" for every technical issue. Maybe you have heard that they solve each of your problems or they are extremely easy to use, or (the best one) they work well on other companies. Generally, these hypes are really good for specific situations but general environments. So pay attention to the  constraints of the hype.
 
 > Your R&D team could investigate and test those new *hypes*, but you should be careful to limit the investment (time, resources and money).
 
@@ -499,7 +499,7 @@ Some of those last hypes are:
  - **Agile**, please read [Agile dead](https://www.linkedin.com/pulse/agile-dead-matthew-kern) or read about hybrid agile (agile + waterfall).
  - Or **Big Data** where just the [27% of executives describe their Big Data initiatives as  successful](https://www.capgemini-consulting.com/resource-file-access/resource/pdf/cracking_the_data_conundrum-big_data_pov_13-1-15_v2.pdf).
 
-The big advantage of those hypes is that projects have hardly any **technical debt and they could still be high efficient projects**. Nevertheless, over time the weight of **technical debt** is increasing. I have faced to projects where the cost of a new development from scratch was cheaper than fix the current one.
+The big advantage of those hypes is that projects hardly have any **technical debt and they could still be high efficient projects**. Nevertheless, over time the weight of **technical debt** increases. I have faced projects where the cost of a new development from scratch was cheaper than fixing the current one.
 
 # Conclusion #
 I have been fortunate to work in long-life projects (more than 10 years when I arrived to the team) and they had a huge **technical debt** fed over the years. The big issue is that **technical debt** is hidden to management layers until it has threatening level.

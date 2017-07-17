@@ -2,7 +2,7 @@
 layout: single
 title:  "Conan, manegando diferentes versiones de Qt"
 date:   2017-06-16 21:00:00 +0100
-lang: en
+lang: es
 categories: cpp  
 ---
 A veces me encuentro con proyectos C++ que usan **Qt** como framework principal,

@@ -12,7 +12,7 @@ Well, there are many influential factors but this entry is about the **technical
 
 Let's assume that you are a PM in a long time project (4 or 5 years) and obviously, you will need a initial investment and some financing during the project. Investors will ask whether that project is a good investment, what and when will be the ROI. I mean, they could need to know the project's **NVP** and **IRR**.
 
-In software development world, we usually _estimate the cost of each new feature_, trying to know what will be the cost associated. However, do we actually implement what we estimated before?. No, we don't. Normally new issues arise, the complexity is increased or requirements do not match with the client's needed.
+In software development world, we usually _estimate the cost of each new feature_, trying to know what will be the cost associated. However, do we actually implement what we estimated before?. No, we don't. Normally new issues arise, the complexity is increased or requirements do not match what the clients needed.
 
 > This entry introduces an indicator to evaluate software refactoring process and **it could be extremely useful when you have to explain to your stakeholders** the cost of avoiding a refactoring. During the planning, those indicators will **help you to prioritize each refactoring** process to get the best performance.
 

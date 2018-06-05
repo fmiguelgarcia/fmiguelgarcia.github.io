@@ -1,0 +1,960 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="https://fmiguelgarcia.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://fmiguelgarcia.github.io/" rel="alternate" type="text/html" /><updated>2018-06-05T15:11:11+02:00</updated><id>https://fmiguelgarcia.github.io/</id><title type="html">Miguel’s blog</title><subtitle>An amazing website.</subtitle><author><name>Francisco Miguel García</name></author><entry xml:lang="en"><title type="html">Conan, working with several Qt versions</title><link href="https://fmiguelgarcia.github.io/cpp/Conan-working-with-several-qt-versions/" rel="alternate" type="text/html" title="Conan, working with several Qt versions" /><published>2017-06-16T22:00:00+02:00</published><updated>2017-06-16T22:00:00+02:00</updated><id>https://fmiguelgarcia.github.io/cpp/Conan-working-with-several-qt-versions</id><content type="html" xml:base="https://fmiguelgarcia.github.io/cpp/Conan-working-with-several-qt-versions/">&lt;p&gt;Sometimes you have to deal with C++ projects that are using &lt;a href=&quot;https://qt.io&quot;&gt;Qt&lt;/a&gt; as a main framework, and &lt;a href=&quot;https://conan.io&quot;&gt;Conan&lt;/a&gt;, as dependency manager. It is quite usual that &lt;strong&gt;Qt&lt;/strong&gt; is installed as a system library (or integrated into your IDE), and your dependencies also use &lt;strong&gt;Qt&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;In this environment, if you want to &lt;em&gt;upgrade&lt;/em&gt; (or just testing) a new version of &lt;strong&gt;Qt&lt;/strong&gt;, you will also need to rebuild each dependency which is using &lt;strong&gt;Qt&lt;/strong&gt;. This situation is going to be worst in case you need to keep or work with different &lt;em&gt;Qt&lt;/em&gt; versions and the same dependencies.&lt;/p&gt;
+
+&lt;p&gt;To remove this tedious work, we will use Conan recipe’s &lt;em&gt;‘options’&lt;/em&gt;, because the &lt;a href=&quot;http://docs.conan.io/en/latest/howtos/define_abi_compatibility.html&quot;&gt;package ABI compatibility&lt;/a&gt; is defined by three thins in Conan:
+	- Package settings,
+	- Package options, and
+	- Package requires&lt;/p&gt;
+
+&lt;p&gt;Let’s see the following conan’s recipe:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;QEEntityConan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConanFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;QEEntity&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;1.0.0&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;requires&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;QEAnnotation/1.0.0@fmiguelgarcia/stable&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;settings&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;os&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;compiler&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;build_type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;arch&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;license&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;https://www.gnu.org/licenses/lgpl-3.0-standalone.html&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;QE Annotated Entity library&quot;&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# STEP 1: qt_version is a new option.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;qt_version&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ANY&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# STEP 2: Load qt version using 'qmake' and store into our option.&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;configure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;qt_version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;popen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;qmake -query QT_VERSION&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Configure Qt Version: &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;qt_version&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+	 &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In the above code, we have defined an option &lt;em&gt;qt_version&lt;/em&gt;, that can contain any value. Then, we use &lt;em&gt;configure()&lt;/em&gt; function to load &lt;em&gt;Qt&lt;/em&gt; version from system, using &lt;em&gt;qmake –query&lt;/em&gt;. In this way, our package ABI compatibility will be linked with the current Qt version. This means that, two packages will be available at same time in our local &lt;strong&gt;Conan&lt;/strong&gt;’s cache:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Package QEEntity 1.0.0 on Linux, x64, GCC-5.0, Release, with &lt;strong&gt;qt_version=5.6.2&lt;/strong&gt;, and&lt;/li&gt;
+  &lt;li&gt;Package QEEntity 1.0.0 on Linux, x64, GCC-5.0, Release, with &lt;strong&gt;qt_version=5.9&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And done, using this method for each depencency, &lt;strong&gt;it allows us to change easily the &lt;em&gt;Qt&lt;/em&gt; in our solution, and &lt;em&gt;Conan&lt;/em&gt; will use the corresponding package version for each dependency.&lt;/strong&gt;&lt;/p&gt;</content><author><name>Francisco Miguel García</name></author><summary type="html">Sometimes you have to deal with C++ projects that are using Qt as a main framework, and Conan, as dependency manager. It is quite usual that Qt is installed as a system library (or integrated into your IDE), and your dependencies also use Qt.</summary></entry><entry xml:lang="es"><title type="html">Technical debt using dynamic indicators: NVP and IRR</title><link href="https://fmiguelgarcia.github.io/pmp/Technical_debt_en/" rel="alternate" type="text/html" title="Technical debt using dynamic indicators: NVP and IRR" /><published>2016-11-30T10:19:48+01:00</published><updated>2016-11-30T10:19:48+01:00</updated><id>https://fmiguelgarcia.github.io/pmp/Technical_debt_en</id><content type="html" xml:base="https://fmiguelgarcia.github.io/pmp/Technical_debt_en/">&lt;p&gt;Last studies show us that the software’s average lifetime is around 10 years. Does it mean that software is like a engine of an old car? Is there a time when you cannot fix it more and the best option is to buy a new one?
+Well, there are many influential factors but this entry is about the &lt;strong&gt;technical debt&lt;/strong&gt; and how you can manage it as a Project Manager.&lt;/p&gt;
+
+&lt;aside class=&quot;sidebar__right&quot;&gt;
+&lt;nav class=&quot;toc&quot;&gt;
+    &lt;header&gt;&lt;h4 class=&quot;nav__title&quot;&gt;&lt;i class=&quot;fa fa-file-text&quot;&gt;&lt;/i&gt; On This Page&lt;/h4&gt;&lt;/header&gt;
+&lt;ul class=&quot;toc__menu&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#what-is-&quot; id=&quot;markdown-toc-what-is-&quot;&gt;What is …&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#-the-technical-debt-developer-skill&quot; id=&quot;markdown-toc--the-technical-debt-developer-skill&quot;&gt;… the technical debt? (developer skill)&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#-npv-and-irr-pmp-skill&quot; id=&quot;markdown-toc--npv-and-irr-pmp-skill&quot;&gt;… NPV and IRR? (PMP skill)&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#nvp-and-irr-simple-example&quot; id=&quot;markdown-toc-nvp-and-irr-simple-example&quot;&gt;NVP and IRR simple example&lt;/a&gt;            &lt;ul&gt;
+              &lt;li&gt;&lt;a href=&quot;#brief-analysis&quot; id=&quot;markdown-toc-brief-analysis&quot;&gt;Brief analysis&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#refactoring-pay-your-debt&quot; id=&quot;markdown-toc-refactoring-pay-your-debt&quot;&gt;Refactoring: pay your debt&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#manage-the-technical-debt&quot; id=&quot;markdown-toc-manage-the-technical-debt&quot;&gt;Manage the technical debt&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#technical-debt-qualification-and-quantification&quot; id=&quot;markdown-toc-technical-debt-qualification-and-quantification&quot;&gt;Technical debt qualification and quantification&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#technical-debt-calculation&quot; id=&quot;markdown-toc-technical-debt-calculation&quot;&gt;Technical Debt Calculation&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#dont-do&quot; id=&quot;markdown-toc-dont-do&quot;&gt;Don’t do&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#hypes--chronicle-of-a-death-foretold&quot; id=&quot;markdown-toc-hypes--chronicle-of-a-death-foretold&quot;&gt;Hypes:  Chronicle of a Death Foretold&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#conclusion&quot; id=&quot;markdown-toc-conclusion&quot;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;/nav&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Let’s assume that you are a PM in a long time project (4 or 5 years) and obviously, you will need a initial investment and some financing during the project. Investors will ask whether that project is a good investment, what and when will be the ROI. I mean, they could need to know the project’s &lt;strong&gt;NVP&lt;/strong&gt; and &lt;strong&gt;IRR&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;In software development world, we usually &lt;em&gt;estimate the cost of each new feature&lt;/em&gt;, trying to know what will be the cost associated. However, do we actually implement what we estimated before?. No, we don’t. Normally new issues arise, the complexity is increased or requirements do not match what the clients needed.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;This entry introduces an indicator to evaluate software refactoring process and &lt;strong&gt;it could be extremely useful when you have to explain to your stakeholders&lt;/strong&gt; the cost of avoiding a refactoring. During the planning, those indicators will &lt;strong&gt;help you to prioritize each refactoring&lt;/strong&gt; process to get the best performance.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Let’s come back to our financial example: each &lt;strong&gt;un-planned&lt;/strong&gt; change in the project is like a &lt;em&gt;request for funding&lt;/em&gt;. It means that we do not have enough cash and we need to use external financial services. As you know, this loan is not free. Any administrator would think to request a loan if the interest rate is unknown. If someone did that, we could think that he/she is incompetent. Well, this situation occurs everyday in software development.&lt;/p&gt;
+
+&lt;script src=&quot;http://fred-wang.github.io/mathml.css/mspace.js&quot;&gt;
+&lt;/script&gt;
+
+&lt;h1 id=&quot;what-is-&quot;&gt;What is …&lt;/h1&gt;
+&lt;p&gt;In this section I’m going to introduce some concepts. If you are already familiar with those concepts, please move to the next section.&lt;/p&gt;
+
+&lt;h2 id=&quot;-the-technical-debt-developer-skill&quot;&gt;… the technical debt? (developer skill)&lt;/h2&gt;
+
+&lt;p&gt;Basically, &lt;strong&gt;technical debt&lt;/strong&gt; is everything that allows us to be &lt;strong&gt;flexible&lt;/strong&gt; meanwhile we are implementing changes in our project which we already know that will be &lt;em&gt;fixed in future&lt;/em&gt;. For instance, this happens when we discover new requirements which affect the software architecture, or when we need to use a &lt;em&gt;workaround&lt;/em&gt; to fix something quickly.&lt;/p&gt;
+
+&lt;p&gt;When we have found new requirements, it is similar to request a loan, and the final technical debt interests will be increased. We usually try to add those new requirements with no modifications into our primary base lines (time, cost, and scope). When our contingency reserve is empty, and our quality base line absorbs the impact, this is also part of the &lt;strong&gt;technical debt&lt;/strong&gt;. For instance, if we reduce the amount of test, then we increase the probability of errors.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;New requirements on the scope usually are similar to a new loan request on financial management. Team could be flexible and agile, but at the end we will pay our “debt interests”.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;When we make a quick &lt;em&gt;workaround&lt;/em&gt;, we could likely avoid a delay on the deployment but we are also increasing our &lt;strong&gt;technical debt&lt;/strong&gt;. That means that we have &lt;em&gt;reduced the &lt;strong&gt;time to market&lt;/strong&gt;&lt;/em&gt; but we have left a future fix pending. If these &lt;em&gt;workaround&lt;/em&gt; is isolated, it won’t probably affect us. However components are usually interconnected, and that pending change will increase the development time of new features on the future.&lt;/p&gt;
+
+&lt;p&gt;A good approach is to group related &lt;strong&gt;technical debts&lt;/strong&gt; and fix them together (like multiple loan example): It is called &lt;strong&gt;re-factoring&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;-npv-and-irr-pmp-skill&quot;&gt;… NPV and IRR? (PMP skill)&lt;/h2&gt;
+&lt;p&gt;First of all, don’t worry about the following formulas because your SpreadSheet (Microsoft Excel or LibreOffice) has &lt;em&gt;simple functions to manage them&lt;/em&gt;: functions NVP and IRR.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NPV&lt;/strong&gt; is the acronym of &lt;strong&gt;Net Present Value&lt;/strong&gt;, and it is &lt;em&gt;the difference between the present value of cash inflows and the present value of cash outflows&lt;/em&gt;. In PMP, we use that to analyse the profitability of a project investment. As a financial dynamic indicator, the NPV formula is:&lt;/p&gt;
+
+&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;
+ &lt;semantics&gt;
+  &lt;mrow&gt;
+   &lt;msub&gt;
+    &lt;mi mathvariant=&quot;italic&quot;&gt;NVP&lt;/mi&gt;
+    &lt;mi&gt;N&lt;/mi&gt;
+   &lt;/msub&gt;
+   &lt;mo stretchy=&quot;false&quot;&gt;=&lt;/mo&gt;
+   &lt;mrow&gt;
+    &lt;mrow&gt;
+     &lt;munderover&gt;
+      &lt;mo stretchy=&quot;false&quot;&gt;∑&lt;/mo&gt;
+      &lt;mrow&gt;
+       &lt;mi&gt;i&lt;/mi&gt;
+       &lt;mo stretchy=&quot;false&quot;&gt;=&lt;/mo&gt;
+       &lt;mn&gt;1&lt;/mn&gt;
+      &lt;/mrow&gt;
+      &lt;mi&gt;N&lt;/mi&gt;
+     &lt;/munderover&gt;
+     &lt;mrow&gt;
+      &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;
+      &lt;mrow&gt;
+       &lt;mfrac&gt;
+        &lt;msub&gt;
+         &lt;mi&gt;C&lt;/mi&gt;
+         &lt;mi&gt;t&lt;/mi&gt;
+        &lt;/msub&gt;
+        &lt;msup&gt;
+         &lt;mrow&gt;
+          &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;
+          &lt;mrow&gt;
+           &lt;mrow&gt;
+            &lt;mn&gt;1&lt;/mn&gt;
+            &lt;mo stretchy=&quot;false&quot;&gt;+&lt;/mo&gt;
+            &lt;mi&gt;i&lt;/mi&gt;
+           &lt;/mrow&gt;
+          &lt;/mrow&gt;
+          &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;
+         &lt;/mrow&gt;
+         &lt;mi&gt;t&lt;/mi&gt;
+        &lt;/msup&gt;
+       &lt;/mfrac&gt;
+      &lt;/mrow&gt;
+      &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;
+     &lt;/mrow&gt;
+    &lt;/mrow&gt;
+    &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+    &lt;msub&gt;
+     &lt;mi&gt;C&lt;/mi&gt;
+     &lt;mn&gt;0&lt;/mn&gt;
+    &lt;/msub&gt;
+   &lt;/mrow&gt;
+  &lt;/mrow&gt;
+  &lt;annotation encoding=&quot;StarMath 5.0&quot;&gt;NVP_N = sum from{i=1} to{N} ( C_t over (1+i)^t)- C_0&lt;/annotation&gt;
+ &lt;/semantics&gt;
+&lt;/math&gt;
+&lt;!--object data=&quot;../_includes/mml/nvp_financial_formula.mml&quot; type=&quot;text/xml&quot;&gt;&lt;/object--&gt;
+
+&lt;p&gt;Where:&lt;/p&gt;
+
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;C&lt;sub&gt;t&lt;/sub&gt;&lt;/strong&gt; is the _net cash flow_, i.e. inflow - outflow, at time &lt;em&gt;t&lt;/em&gt;.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;C&lt;sub&gt;0&lt;/sub&gt;&lt;/strong&gt; is the net cash flow at the beginning. It means the &lt;em&gt;initial investment&lt;/em&gt;.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;i&lt;/strong&gt; is the &lt;em&gt;discount rate&lt;/em&gt;. We could use a fixed rate investment or any other similar risk rate investment.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We could classify the projects using the following table based on NVP result:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;NVP Result&lt;/th&gt;
+      &lt;th&gt;It means&lt;/th&gt;
+      &lt;th&gt;Then&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&amp;gt; 0&lt;/td&gt;
+      &lt;td&gt;Project &lt;strong&gt;adds value&lt;/strong&gt; to the company&lt;/td&gt;
+      &lt;td&gt;Project may be &lt;strong&gt;accepted&lt;/strong&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&amp;lt; 0&lt;/td&gt;
+      &lt;td&gt;Project would subtract value from the company&lt;/td&gt;
+      &lt;td&gt;Project may be rejected&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;= 0&lt;/td&gt;
+      &lt;td&gt;Project would neither add or subtract value&lt;/td&gt;
+      &lt;td&gt;No information, we should use other criteria&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;IRR&lt;/strong&gt; is the &lt;strong&gt;Internal Rate of Return&lt;/strong&gt;: a discount rate that &lt;em&gt;makes the net present value (NPV) of all cash flows from a particular project equal to zero&lt;/em&gt;.&lt;/p&gt;
+
+&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;
+ &lt;semantics&gt;
+  &lt;mtable&gt;
+   &lt;mtr&gt;
+    &lt;mtd&gt;
+     &lt;mrow&gt;
+      &lt;msub&gt;
+       &lt;mi mathvariant=&quot;italic&quot;&gt;NVP&lt;/mi&gt;
+       &lt;mi&gt;N&lt;/mi&gt;
+      &lt;/msub&gt;
+      &lt;mo stretchy=&quot;false&quot;&gt;=&lt;/mo&gt;
+      &lt;mrow&gt;
+       &lt;mrow&gt;
+        &lt;munderover&gt;
+         &lt;mo stretchy=&quot;false&quot;&gt;∑&lt;/mo&gt;
+         &lt;mrow&gt;
+          &lt;mi&gt;i&lt;/mi&gt;
+          &lt;mo stretchy=&quot;false&quot;&gt;=&lt;/mo&gt;
+          &lt;mn&gt;1&lt;/mn&gt;
+         &lt;/mrow&gt;
+         &lt;mi&gt;N&lt;/mi&gt;
+        &lt;/munderover&gt;
+        &lt;mrow&gt;
+         &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;
+         &lt;mrow&gt;
+          &lt;mfrac&gt;
+           &lt;msub&gt;
+            &lt;mi&gt;C&lt;/mi&gt;
+            &lt;mi&gt;t&lt;/mi&gt;
+           &lt;/msub&gt;
+           &lt;msup&gt;
+            &lt;mrow&gt;
+             &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;
+             &lt;mrow&gt;
+              &lt;mrow&gt;
+               &lt;mn&gt;1&lt;/mn&gt;
+               &lt;mo stretchy=&quot;false&quot;&gt;+&lt;/mo&gt;
+               &lt;mi mathvariant=&quot;italic&quot;&gt;IRR&lt;/mi&gt;
+              &lt;/mrow&gt;
+             &lt;/mrow&gt;
+             &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;
+            &lt;/mrow&gt;
+            &lt;mi&gt;t&lt;/mi&gt;
+           &lt;/msup&gt;
+          &lt;/mfrac&gt;
+         &lt;/mrow&gt;
+         &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;
+        &lt;/mrow&gt;
+       &lt;/mrow&gt;
+       &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+       &lt;msub&gt;
+        &lt;mi&gt;C&lt;/mi&gt;
+        &lt;mi&gt;o&lt;/mi&gt;
+       &lt;/msub&gt;
+      &lt;/mrow&gt;
+      &lt;mo stretchy=&quot;false&quot;&gt;=&lt;/mo&gt;
+      &lt;mn&gt;0&lt;/mn&gt;
+     &lt;/mrow&gt;
+    &lt;/mtd&gt;
+   &lt;/mtr&gt;
+   &lt;mtr&gt;
+    &lt;mtd&gt;
+     &lt;mrow&gt;
+      &lt;msub&gt;
+       &lt;mi mathvariant=&quot;italic&quot;&gt;IRR&lt;/mi&gt;
+       &lt;mrow&gt;
+        &lt;mi&gt;n&lt;/mi&gt;
+        &lt;mo stretchy=&quot;false&quot;&gt;+&lt;/mo&gt;
+        &lt;mn&gt;1&lt;/mn&gt;
+       &lt;/mrow&gt;
+      &lt;/msub&gt;
+      &lt;mo stretchy=&quot;false&quot;&gt;=&lt;/mo&gt;
+      &lt;mrow&gt;
+       &lt;msub&gt;
+        &lt;mi mathvariant=&quot;italic&quot;&gt;IRR&lt;/mi&gt;
+        &lt;mi&gt;n&lt;/mi&gt;
+       &lt;/msub&gt;
+       &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+       &lt;mrow&gt;
+        &lt;msub&gt;
+         &lt;mi mathvariant=&quot;italic&quot;&gt;NVP&lt;/mi&gt;
+         &lt;mi&gt;n&lt;/mi&gt;
+        &lt;/msub&gt;
+        &lt;mo stretchy=&quot;false&quot;&gt;⋅&lt;/mo&gt;
+        &lt;mrow&gt;
+         &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;
+         &lt;mrow&gt;
+          &lt;mfrac&gt;
+           &lt;mrow&gt;
+            &lt;msub&gt;
+             &lt;mi mathvariant=&quot;italic&quot;&gt;IRR&lt;/mi&gt;
+             &lt;mi&gt;n&lt;/mi&gt;
+            &lt;/msub&gt;
+            &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+            &lt;msub&gt;
+             &lt;mi mathvariant=&quot;italic&quot;&gt;IRR&lt;/mi&gt;
+             &lt;mrow&gt;
+              &lt;mi&gt;n&lt;/mi&gt;
+              &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+              &lt;mn&gt;1&lt;/mn&gt;
+             &lt;/mrow&gt;
+            &lt;/msub&gt;
+           &lt;/mrow&gt;
+           &lt;mrow&gt;
+            &lt;msub&gt;
+             &lt;mi mathvariant=&quot;italic&quot;&gt;NVP&lt;/mi&gt;
+             &lt;mi&gt;n&lt;/mi&gt;
+            &lt;/msub&gt;
+            &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+            &lt;msub&gt;
+             &lt;mi mathvariant=&quot;italic&quot;&gt;NVP&lt;/mi&gt;
+             &lt;mrow&gt;
+              &lt;mi&gt;n&lt;/mi&gt;
+              &lt;mo stretchy=&quot;false&quot;&gt;−&lt;/mo&gt;
+              &lt;mn&gt;1&lt;/mn&gt;
+             &lt;/mrow&gt;
+            &lt;/msub&gt;
+           &lt;/mrow&gt;
+          &lt;/mfrac&gt;
+         &lt;/mrow&gt;
+         &lt;mo fence=&quot;true&quot; stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;
+        &lt;/mrow&gt;
+       &lt;/mrow&gt;
+      &lt;/mrow&gt;
+     &lt;/mrow&gt;
+    &lt;/mtd&gt;
+   &lt;/mtr&gt;
+  &lt;/mtable&gt;
+  &lt;annotation encoding=&quot;StarMath 5.0&quot;&gt;NVP_N = sum from i=1 to N {(C_t over (1+IRR)^t)} - C_o  = 0 newline 
+IRR_{n+1} = IRR_{ n } - NVP_n cdot ( {IRR_n - IRR_{n-1} } over {NVP_n - NVP_{n-1}} )
+&lt;/annotation&gt;
+ &lt;/semantics&gt;
+&lt;/math&gt;
+&lt;!--embed data=&quot;../_includes/mml/irr_financial_formula.mml&quot; type=&quot;text/xml&quot;/--&gt;
+
+&lt;p&gt;However &lt;em&gt;we need to transform each financial concept to our &lt;strong&gt;technical debt&lt;/strong&gt; templates&lt;/em&gt;( see &lt;strong&gt;Technical Debt Calculation&lt;/strong&gt; section).&lt;/p&gt;
+
+&lt;p&gt;Using &lt;strong&gt;NVP&lt;/strong&gt;, we could evaluate the viability and profitability of a project overtime. Let’s see the example below to clarify both concepts.&lt;/p&gt;
+
+&lt;h3 id=&quot;nvp-and-irr-simple-example&quot;&gt;NVP and IRR simple example&lt;/h3&gt;
+
+&lt;p&gt;Let’s assume that we have three projects, their cash-flow estimations (CF) and a &lt;em&gt;discount rate&lt;/em&gt; equal to &lt;strong&gt;5%&lt;/strong&gt; .&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Project&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Init Investment (C&lt;sub&gt;0&lt;/sub&gt;)&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;CF 1st year (C&lt;sub&gt;1&lt;/sub&gt;)&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;CF 2nd year (C&lt;sub&gt;2&lt;/sub&gt;)&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;CF 3rd year (C&lt;sub&gt;3&lt;/sub&gt;)&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;A&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;-200&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;50&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;100&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;200&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;B&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;-300&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;70&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;70&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;170&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;C&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;-400&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;100&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;200&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;380&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Calculating NVP and IRR for each project:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;Project&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;SUM(C&lt;sub&gt;i&lt;/sub&gt;)&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;NVP&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;IRR&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;A&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;150&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;111.09&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;26.73%&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;B&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;10&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;-22.99&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;1.42%&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;C&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;280&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;204.90&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;25.35%&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h4 id=&quot;brief-analysis&quot;&gt;Brief analysis&lt;/h4&gt;
+&lt;p&gt;Using the &lt;em&gt;NVP&lt;/em&gt; value, we can see that project &lt;em&gt;B&lt;/em&gt; will subtract value from the company. Projects &lt;em&gt;A&lt;/em&gt; and &lt;em&gt;C&lt;/em&gt; are profitable and &lt;em&gt;C&lt;/em&gt; has bigger NVP than &lt;em&gt;A&lt;/em&gt;, so we should select &lt;em&gt;C&lt;/em&gt; project. But sometimes, we are looking for a project with a low initial investment but a good performance. In that case, IRR of &lt;em&gt;A&lt;/em&gt; is 1.38% bigger than the &lt;em&gt;B&lt;/em&gt;’s one.
+Now that we understand NVP and IRR concepts, we could apply them to our refactoring process in our development world.&lt;/p&gt;
+
+&lt;h1 id=&quot;refactoring-pay-your-debt&quot;&gt;Refactoring: pay your debt&lt;/h1&gt;
+
+&lt;p&gt;Refactoring can be classified as:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Pro-active Refactoring&lt;/strong&gt;. Is the best one because is &lt;em&gt;optional&lt;/em&gt; (at the moment) and it allows us to plan when and how to achieve it (or even leave it). Other big advantage is that it gives us information about the &lt;em&gt;team status&lt;/em&gt;. Whether we have a lot of change requests coming from the team (pro-activity) that means that the team engagement is high. Otherwise, we likely invest some resources to get that engagement. A demotivated team is one of the worst things in a project.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Mandatory Refactoring&lt;/strong&gt;. We have no alternatives and we have to pay right now to get the new feature. In our financial example, it means that we have been into a court process and we have lost it. In that case, we have lost the flexibility.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;manage-the-technical-debt&quot;&gt;Manage the technical debt&lt;/h1&gt;
+
+&lt;p&gt;In the same way that any administrator keeps under control the financial aspect, we also have to manage our &lt;em&gt;technical debt&lt;/em&gt;. Our suggestion is to &lt;em&gt;manage each technical debt as a new risk&lt;/em&gt; and link it to a module. As another risk, we have to calculate the probability and the impact (using the relation index of that module). The estimation cost should be provided by the technical team.&lt;/p&gt;
+
+&lt;p&gt;After that initial classification, we need to evaluate the over-cost of the technical debt. We can use the &lt;strong&gt;NVP&lt;/strong&gt; concept but, instead of time, we will use the amount of &lt;strong&gt;interconnected modules&lt;/strong&gt;. It means that a debt affects 5 first components should be more expensive that one only affects just a module.&lt;/p&gt;
+
+&lt;h2 id=&quot;technical-debt-qualification-and-quantification&quot;&gt;Technical debt qualification and quantification&lt;/h2&gt;
+
+&lt;p&gt;As risk management, we have got a &lt;em&gt;Probability and Impact Matrix&lt;/em&gt;. However, the &lt;em&gt;impact&lt;/em&gt; concept is replaced by the number of related modules that could be affected by this debt. &lt;em&gt;Probability&lt;/em&gt; should be calculated for each software deployment. It means that if the next deploy has no affected modules, then its probability is less than 0.1. 
+This matrix allows us to prioritise the payment of our technical debt along development iterations and get better contingency reserve.&lt;/p&gt;
+
+&lt;table&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Probability&lt;br /&gt;(Iteration)&lt;/th&gt; &lt;th colspan=&quot;5&quot;&gt;Technical Debt Threat&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;0.90&lt;/td&gt; &lt;td&gt;0.05&lt;/td&gt; &lt;td&gt;0.09&lt;/td&gt; &lt;td&gt;0.18&lt;/td&gt; &lt;td&gt;0.36&lt;/td&gt; &lt;td&gt;0.72&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;0.70&lt;/td&gt; &lt;td&gt;0.04&lt;/td&gt; &lt;td&gt;0.07&lt;/td&gt; &lt;td&gt;0.14&lt;/td&gt; &lt;td&gt;0.28&lt;/td&gt; &lt;td&gt;0.56&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;0.50&lt;/td&gt; &lt;td&gt;0.03&lt;/td&gt; &lt;td&gt;0.05&lt;/td&gt; &lt;td&gt;0.10&lt;/td&gt; &lt;td&gt;0.20&lt;/td&gt; &lt;td&gt;0.40&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;0.30&lt;/td&gt; &lt;td&gt;0.02&lt;/td&gt; &lt;td&gt;0.03&lt;/td&gt; &lt;td&gt;0.06&lt;/td&gt; &lt;td&gt;0.12&lt;/td&gt; &lt;td&gt;0.24&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;0.10&lt;/td&gt; &lt;td&gt;0.01&lt;/td&gt; &lt;td&gt;0.01&lt;/td&gt; &lt;td&gt;0.02&lt;/td&gt; &lt;td&gt;0.04&lt;/td&gt; &lt;td&gt;0.08&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td /&gt; &lt;td&gt;0.05&lt;br /&gt;Very Low&lt;/td&gt; &lt;td&gt;0.10&lt;br /&gt;Low&lt;/td&gt; &lt;td&gt;0.20&lt;br /&gt;Moderate&lt;/td&gt; &lt;td&gt;0.40&lt;br /&gt;High&lt;/td&gt; &lt;td&gt;0.80&lt;br /&gt;Very Hight&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Template to manage refactors&lt;/p&gt;
+
+&lt;table&gt;
+    &lt;tr&gt;
+        &lt;td&gt;&lt;b&gt;Technical debt ID&lt;/b&gt;&lt;/td&gt; &lt;td&gt;&lt;i&gt;rtd-001&lt;/i&gt;&lt;/td&gt; &lt;td&gt;&lt;b&gt;Iteration&lt;/b&gt;&lt;/td&gt; &lt;td&gt;&lt;i&gt;2&lt;/i&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td colspan=&quot;4&quot;&gt;
+            &lt;table width=&quot;100%&quot;&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;&lt;b&gt;Probability&lt;/b&gt;&lt;/td&gt; &lt;td&gt;0.50&lt;/td&gt; &lt;td&gt;&lt;b&gt;Impact&lt;/b&gt;&lt;/td&gt; &lt;td&gt;0.40&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;PI index (PxI)&lt;/b&gt;&lt;/td&gt; &lt;td colspan=&quot;2&quot;&gt;0.20&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
+        &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td colspan=&quot;3&quot;&gt;&lt;b&gt;Affected Modules Count&lt;/b&gt;&lt;/td&gt; &lt;td&gt;3&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td colspan=&quot;3&quot;&gt;&lt;b&gt;Estimation&lt;/b&gt;&lt;/td&gt; &lt;td&gt;45 h&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td colspan=&quot;4&quot;&gt;
+            &lt;table width=&quot;100%&quot;&gt;
+                &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;2016-9-20&lt;/td&gt; &lt;td&gt;Sort description and technical notes&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;2016-10-1&lt;/td&gt; &lt;td&gt;More technical detail&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
+        &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td colspan=&quot;4&quot;&gt;
+            &lt;table width=&quot;100%&quot;&gt;
+                &lt;tr&gt;&lt;th&gt;Modules&lt;/th&gt;&lt;/tr&gt;
+                &lt;tr&gt;&lt;td&gt;Mod 1&lt;/td&gt;&lt;/tr&gt;
+                &lt;tr&gt;&lt;td&gt;Mod 2&lt;/td&gt;&lt;/tr&gt;
+                &lt;tr&gt;&lt;td&gt;Mod 3&lt;/td&gt;&lt;/tr&gt;
+            &lt;/table&gt;
+        &lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;technical-debt-calculation&quot;&gt;Technical Debt Calculation&lt;/h2&gt;
+
+&lt;p&gt;We only need a little modification in NVP formula to apply to our &lt;strong&gt;technical debt&lt;/strong&gt; calculation:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Instead of using years or any period time (t), we will use the released feature.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;cash flow&lt;/strong&gt; &lt;em&gt;is the difference between the cost of doing nothing and the cost of applying the refactor&lt;/em&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Let’s start an example. We have to develop and deploy three new features in our product/project. Team has identified two possible refactors, and modules are affected by each of those refactors. Next step is to generate the feature associated estimations, using different scenarios (no refactor, refactor A and refactor B). The following table represents those estimations:&lt;/p&gt;
+
+&lt;table&gt;
+	&lt;tr&gt;
+    	&lt;th colspan=&quot;10&quot;&gt;Hours&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;th&gt;&lt;/th&gt; &lt;th colspan=&quot;3&quot;&gt;Feature 1&lt;/th&gt; &lt;th colspan=&quot;3&quot;&gt;Feature 2&lt;/th&gt; &lt;th colspan=&quot;3&quot;&gt;Feature 3&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;th&gt;&lt;/th&gt; &lt;th&gt;No Refactor&lt;/th&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt; &lt;th&gt;No Refactor&lt;/th&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt; &lt;th&gt;No Refactor&lt;/th&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Refactor&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;40&lt;/td&gt; &lt;td&gt;30&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 1&lt;/td&gt; &lt;td&gt;40&lt;/td&gt; &lt;td&gt;10&lt;/td&gt; &lt;td&gt;40&lt;/td&gt; &lt;td&gt;100&lt;/td&gt; &lt;td&gt;50&lt;/td&gt; &lt;td&gt;100&lt;/td&gt; &lt;td&gt;50&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 2&lt;/td&gt; &lt;td&gt;20&lt;/td&gt; &lt;td&gt;10&lt;/td&gt; &lt;td&gt;20&lt;/td&gt; &lt;td&gt;30&lt;/td&gt; &lt;td&gt;10&lt;/td&gt; &lt;td&gt;30&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;20&lt;/td&gt; &lt;td&gt;50&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 3&lt;/td&gt; &lt;td&gt;80&lt;/td&gt; &lt;td&gt;80&lt;/td&gt; &lt;td&gt;40&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;40&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 4&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;90&lt;/td&gt; &lt;td&gt;40&lt;/td&gt; &lt;td&gt;20&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;&lt;strong&gt;Subtotals&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;140&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;140&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;130&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;130&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;60&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;130&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;180&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;60&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;70&lt;/strong&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Let’s translate this information to cost:&lt;/p&gt;
+
+&lt;table&gt;
+	&lt;tr&gt;
+    	&lt;th colspan=&quot;10&quot;&gt;Costs&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td colspan=&quot;7&quot; /&gt; &lt;td colspan=&quot;2&quot;&gt;Hour cost&lt;/td&gt;&lt;td&gt;$50&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;th&gt;&lt;/th&gt; &lt;th colspan=&quot;3&quot;&gt;Feature 1&lt;/th&gt; &lt;th colspan=&quot;3&quot;&gt;Feature 2&lt;/th&gt; &lt;th colspan=&quot;3&quot;&gt;Feature 3&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;th&gt;&lt;/th&gt; &lt;th&gt;No Refactor&lt;/th&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt; &lt;th&gt;No Refactor&lt;/th&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt; &lt;th&gt;No Refactor&lt;/th&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Refactor&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$2,000&lt;/td&gt; &lt;td&gt;$1,500&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 1&lt;/td&gt; &lt;td&gt;$2,000&lt;/td&gt; &lt;td&gt;$500&lt;/td&gt; &lt;td&gt;$2,000&lt;/td&gt; &lt;td&gt;$5,000&lt;/td&gt; &lt;td&gt;$2,500&lt;/td&gt; &lt;td&gt;$5,000&lt;/td&gt; &lt;td&gt;$2,500&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 2&lt;/td&gt; &lt;td&gt;$1,000&lt;/td&gt; &lt;td&gt;$500&lt;/td&gt; &lt;td&gt;$1,000&lt;/td&gt; &lt;td&gt;$1,500&lt;/td&gt; &lt;td&gt;$500&lt;/td&gt; &lt;td&gt;$1,500&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$1,000&lt;/td&gt; &lt;td&gt;$2,500&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 3&lt;/td&gt; &lt;td&gt;$4,000&lt;/td&gt; &lt;td&gt;$4,000&lt;/td&gt; &lt;td&gt;$2,000&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$2,000&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Mod 4&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$4,500&lt;/td&gt; &lt;td&gt;$2,000&lt;/td&gt; &lt;td&gt;$1,000&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;&lt;strong&gt;Subtotals&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;$7,000&lt;/td&gt; &lt;td&gt;$7,000&lt;/td&gt; &lt;td&gt;$6,500&lt;/td&gt; &lt;td&gt;$6,500&lt;/td&gt; &lt;td&gt;$3,000&lt;/td&gt; &lt;td&gt;$6,500&lt;/td&gt; &lt;td&gt;$9,000&lt;/td&gt; &lt;td&gt;$3,000&lt;/td&gt; &lt;td&gt;$3,500&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;th colspan=&quot;2&quot; /&gt; &lt;th&gt;CashFlow A&lt;/th&gt; &lt;th&gt;CashFlow B&lt;/th&gt; &lt;th /&gt; &lt;th&gt;CashFlow A&lt;/th&gt; &lt;th&gt;CashFlow B&lt;/th&gt; &lt;th /&gt; &lt;th&gt;CashFlow A&lt;/th&gt; &lt;th&gt;CashFlow B&lt;/th&gt; &lt;th /&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td colspan=&quot;2&quot;&gt;CashFlow = Base - Refactor&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;&lt;strong&gt;$500&lt;/strong&gt;&lt;/td&gt; &lt;td /&gt; &lt;td&gt;&lt;strong&gt;$3,500&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td /&gt; &lt;td&gt;&lt;strong&gt;$6,500&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;&lt;strong&gt;$5,500&lt;/strong&gt;&lt;/td&gt; &lt;td /&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Now, using this data, we will calculate the &lt;strong&gt;NVP&lt;/strong&gt; and &lt;strong&gt;IRR&lt;/strong&gt;, using a 5.00% discount rate.&lt;/p&gt;
+
+&lt;table&gt;
+	&lt;tr&gt;
+    	&lt;th /&gt; &lt;th&gt;Refactor A&lt;/th&gt; &lt;th&gt;Refactor B&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;&lt;strong&gt;Initial Cost&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;$ -2,000&lt;/td&gt; &lt;td&gt;$ -1,500&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Feature 1&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt; &lt;td&gt;$500&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Feature 2&lt;/td&gt; &lt;td&gt;$3,500&lt;/td&gt; &lt;td&gt;$0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;Feature 3&lt;/td&gt; &lt;td&gt;$6,000&lt;/td&gt; &lt;td&gt;$5,500&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;&lt;strong&gt;NVP&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;$6,357.63&lt;/td&gt; &lt;td&gt;$3,727.30&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+    	&lt;td&gt;&lt;strong&gt;IRR&lt;/strong&gt;&lt;/td&gt; &lt;td&gt;83.89%&lt;/td&gt; &lt;td&gt;66.15%&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Using this method, it is easy to &lt;strong&gt;put some real numbers&lt;/strong&gt; on reports and &lt;strong&gt;persuade your stakeholders&lt;/strong&gt; to allow a code refactor process. 
+You can also use it to &lt;strong&gt;evaluate several refactors&lt;/strong&gt;, and &lt;strong&gt;choose the best one&lt;/strong&gt; for your current portfolio.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;dont-do&quot;&gt;Don’t do&lt;/h1&gt;
+
+&lt;p&gt;Thinking that a little &lt;strong&gt;technical debt&lt;/strong&gt; will not affect the project is an error that we must avoid as a PM. We have to keep risks under control using templates or techniques (like this one) but this requires that our project is perfectly split into functional packages, working very close to the architectural team.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;We should &lt;strong&gt;never ignore&lt;/strong&gt; the issue behind a refactor requested by developers.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Other option, less flexible but simpler, is to allocate bandwidth in every iteration to solve some refactors. However this only works if your stakeholders engagement is high.&lt;/p&gt;
+
+&lt;h1 id=&quot;hypes--chronicle-of-a-death-foretold&quot;&gt;Hypes:  Chronicle of a Death Foretold&lt;/h1&gt;
+
+&lt;p&gt;In this business, from time to time, new hypes are coming up and they become the “silver bullet” for every technical issue. Maybe you have heard that they solve each of your problems or they are extremely easy to use, or (the best one) they work well on other companies. Generally, these hypes are really good for specific situations but general environments. So pay attention to the  constraints of the hype.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Your R&amp;amp;D team could investigate and test those new &lt;em&gt;hypes&lt;/em&gt;, but you should be careful to limit the investment (time, resources and money).&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Some of those last hypes are:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Agile&lt;/strong&gt;, please read &lt;a href=&quot;https://www.linkedin.com/pulse/agile-dead-matthew-kern&quot;&gt;Agile dead&lt;/a&gt; or read about hybrid agile (agile + waterfall).&lt;/li&gt;
+  &lt;li&gt;Or &lt;strong&gt;Big Data&lt;/strong&gt; where just the &lt;a href=&quot;https://www.capgemini-consulting.com/resource-file-access/resource/pdf/cracking_the_data_conundrum-big_data_pov_13-1-15_v2.pdf&quot;&gt;27% of executives describe their Big Data initiatives as  successful&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The big advantage of those hypes is that projects hardly have any &lt;strong&gt;technical debt and they could still be high efficient projects&lt;/strong&gt;. Nevertheless, over time the weight of &lt;strong&gt;technical debt&lt;/strong&gt; increases. I have faced projects where the cost of a new development from scratch was cheaper than fixing the current one.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;I have been fortunate to work in long-life projects (more than 10 years when I arrived to the team) and they had a huge &lt;strong&gt;technical debt&lt;/strong&gt; fed over the years. The big issue is that &lt;strong&gt;technical debt&lt;/strong&gt; is hidden to management layers until it has threatening level.
+In this sense, it is impossible to get high performance team (Agile team) when they are spending more that 40% of the development time fighting against the &lt;strong&gt;technical debt&lt;/strong&gt;. How do you tell your stakeholders that the final product is 40% more expensive or the team velocity is just 60%? And this is the best case because next year will be likely worse. Those things end up with team’s motivation, increase the &lt;strong&gt;time to market&lt;/strong&gt;, and you could loose competency or whole business.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Keep risks under control, keep your &lt;strong&gt;technical debt&lt;/strong&gt; under control&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;You could think that the cost of evaluate the &lt;strong&gt;technical debt&lt;/strong&gt; on a long-life project is high but let’s see from the financial point of view: Does someone dare to buy a house without checking if it is free of charge?&lt;/p&gt;</content><author><name>Francisco Miguel García</name></author><summary type="html">Last studies show us that the software’s average lifetime is around 10 years. Does it mean that software is like a engine of an old car? Is there a time when you cannot fix it more and the best option is to buy a new one? Well, there are many influential factors but this entry is about the technical debt and how you can manage it as a Project Manager.</summary></entry><entry xml:lang="en"><title type="html">Qt Charts and conan package manager</title><link href="https://fmiguelgarcia.github.io/cpp/QtCharts-and-conan/" rel="alternate" type="text/html" title="Qt Charts and conan package manager" /><published>2016-05-20T17:19:48+02:00</published><updated>2016-05-20T17:19:48+02:00</updated><id>https://fmiguelgarcia.github.io/cpp/QtCharts-and-conan</id><content type="html" xml:base="https://fmiguelgarcia.github.io/cpp/QtCharts-and-conan/">&lt;p&gt;Each new Qt release usually comes with new and interesting features. In the last 5.6.0, the shiny new &lt;code&gt;QtCharts&lt;/code&gt;’s licence was a temptation for me. However, after downloading this bundle, I discovered that &lt;code&gt;QtCharts&lt;/code&gt; was not included. You need to download it from &lt;code&gt;git&lt;/code&gt; and compile it by yourself.&lt;/p&gt;
+
+&lt;aside class=&quot;sidebar__right&quot;&gt;
+&lt;nav class=&quot;toc&quot;&gt;
+    &lt;header&gt;&lt;h4 class=&quot;nav__title&quot;&gt;&lt;i class=&quot;fa fa-file-text&quot;&gt;&lt;/i&gt; On This Page&lt;/h4&gt;&lt;/header&gt;
+&lt;ul class=&quot;toc__menu&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#starting-with-conan&quot; id=&quot;markdown-toc-starting-with-conan&quot;&gt;Starting with conan&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#environment-setup&quot; id=&quot;markdown-toc-environment-setup&quot;&gt;Environment setup&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#export-build-and-enjoy&quot; id=&quot;markdown-toc-export-build-and-enjoy&quot;&gt;Export, build and enjoy&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#conclusion&quot; id=&quot;markdown-toc-conclusion&quot;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;/nav&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;This is a perfect opportunity to generate my first &lt;code&gt;conan&lt;/code&gt; package. If you don’t know &lt;code&gt;conan&lt;/code&gt; yet, please visit &lt;a href=&quot;https://conan.io&quot;&gt;Conan web page&lt;/a&gt;. It is a promising new system to facilitate the &lt;strong&gt;package management for C++ with a perfect CMake integration&lt;/strong&gt;. It also supports other build tools integration, but is there anyone better than &lt;code&gt;CMake&lt;/code&gt;? Well, this is my humble opinion, hehe.
+From an architectonic point of view, the package architecture is usually postponed until the software solution is huge and difficult to manage. It is a common and &lt;em&gt;bad praxis&lt;/em&gt; on lot of companies. A good &lt;em&gt;package architecture&lt;/em&gt;, at the beginning of the project, will allow us to reach a set of advantages:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Work paralellization capacity&lt;/strong&gt; in different solution’s areas and executed by several work groups. If we don’t have versioned and well-splitted packages, the integration of developments which has been executed by different teams (specially when they are remote) could be a &lt;em&gt;overload&lt;/em&gt; that directly affects to our &lt;strong&gt;time to market&lt;/strong&gt;. The &lt;em&gt;project managers&lt;/em&gt; and &lt;em&gt;software architect&lt;/em&gt; have to work together to link the &lt;strong&gt;Work Breakdown Structure&lt;/strong&gt; with the &lt;strong&gt;package management&lt;/strong&gt; because this package architecture could facilitate the achievement of the deliverables and be able to use &lt;em&gt;fast tracking&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;It &lt;strong&gt;increases the solution quality&lt;/strong&gt; because it avoids to fall into the &lt;strong&gt;Dependency hell&lt;/strong&gt;. Analyzing periodically the package’s evolution, we are able to determine where we need to increase the effort, make &lt;em&gt;integrations&lt;/em&gt; or &lt;em&gt;refactoring&lt;/em&gt; components. The main aim is to &lt;strong&gt;reduce the over-cost&lt;/strong&gt;, specially cases due to &lt;strong&gt;Technical debt&lt;/strong&gt; (we will see that on a future post).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The modern coffee language guys have a good solution for that using &lt;code&gt;Maven&lt;/code&gt; or &lt;code&gt;Gradle&lt;/code&gt;. However on a &lt;code&gt;C&lt;/code&gt; or &lt;code&gt;C++&lt;/code&gt; project, my recommendation is to use the tandem &lt;code&gt;CMake&lt;/code&gt; and &lt;code&gt;conan&lt;/code&gt;. Both tools are specially useful when your solution is multiplaform. I mean not only different operative systems (like Windows, Mac or Linux), also when you work using several compilers (clang, gcc, MSVC, etc) or different versions of them.&lt;/p&gt;
+
+&lt;h1 id=&quot;starting-with-conan&quot;&gt;Starting with conan&lt;/h1&gt;
+
+&lt;p&gt;Let’s do the first step, How can I generate a &lt;code&gt;conan&lt;/code&gt; package? Briefly, we have to create a new file, the &lt;strong&gt;package recipe&lt;/strong&gt;: &lt;code&gt;conanfile.py&lt;/code&gt;. Yes, it is python, so Can you imagine the flexibility to create custom building steps?. There is another option, based on a simpler text file, but &lt;code&gt;python&lt;/code&gt; is quite simple, Isn’t it?. Well let’s come back to our recipe file. This file contains a &lt;code&gt;python&lt;/code&gt; class where we can setup things like how the system will get the source code, which are its dependencies, how to build it or what should be in the binary package.&lt;/p&gt;
+
+&lt;p&gt;One of the biggest advantages againts &lt;code&gt;Maven&lt;/code&gt; is that conan manages very well some aspects needed by native applications, like: compiler and its version, system architecture (x86, x64, etc), operative system, etc. Moreover, it will try to build the binary package whether it does not still exist on your local repository or for your specific configuration. For example, let’s assume that our system is based on &lt;code&gt;gcc 4.9&lt;/code&gt; and we want to test our library with &lt;code&gt;Microsoft VS 2015&lt;/code&gt; compiler. We only need to setup our default configuration or adjust some command line parameters and each dependency will be compiled, linked, and stored in our local repository using the new compiler.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;conan&lt;/code&gt; recipe for this post is located in &lt;a href=&quot;https://github.com/fmiguelgarcia/conan.qtcharts.git&quot;&gt;My QtChart’s git repository&lt;/a&gt; and the package is also available in &lt;strong&gt;conan public repository&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$&amp;gt; conan search -v -r=&quot;conan.io&quot; QtChart 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;environment-setup&quot;&gt;Environment setup&lt;/h1&gt;
+
+&lt;p&gt;Qt 5.6.0 is a QtCharts’ dependency, and we should generate each Qt 5.6.0 package. However, this is too much work for now. Instead of that, we will set them as a system precondition. Actually we only need to update the &lt;code&gt;path&lt;/code&gt; to point to the right &lt;code&gt;qmake&lt;/code&gt;. In my case, I’m using &lt;a href=&quot;https://fishshell.com/&quot;&gt;Fish shell&lt;/a&gt; instead of &lt;a href=&quot;https://www.gnu.org/software/bash/&quot;&gt;Bash shell&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set -xg PATH ~/bin/Qt/5.6/gcc_64/bin/ $PATH
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and we just check that &lt;code&gt;qmake&lt;/code&gt; version is the proper one:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$&amp;gt; qmake --version
+QMake version 3.0
+Using Qt version 5.6.0 in /home/miguel/bin/Qt/5.6/gcc_64/lib
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;export-build-and-enjoy&quot;&gt;Export, build and enjoy&lt;/h1&gt;
+
+&lt;p&gt;Firstly we need to export the package. This means that we have to copy the package recipe into our local repository. In this way, the package will be available as a dependency for future package builds.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$&amp;gt; conan export fmiguelgarcia/stable
+
+QtCharts/5.7.0@fmiguelgarcia/stable: A new conanfile.py version was exported
+QtCharts/5.7.0@fmiguelgarcia/stable: conanfile.py exported to local storage
+QtCharts/5.7.0@fmiguelgarcia/stable: Folder: /home/miguel/.conan/data/QtCharts/5.7.0/miguel/stable/export
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Conan recipes are exported within some kind of positional information, and in these case, &lt;code&gt;fmiguelgarcia/stable&lt;/code&gt; identifies this recipe’s user is &lt;code&gt;fmiguelgarcia&lt;/code&gt; and it is in the &lt;code&gt;stable&lt;/code&gt; channel.&lt;/p&gt;
+
+&lt;p&gt;This is enough, since dependencies can be built even if it has not been compiled for your specific configuration. We are right now as a package forger, and we need to check that the building and the package generation are correct. The conan’s approach is to generate a special test package which has our package as a dependence. In addition, we have to add a test code to use the library and to generate a test executable. 
+When test package is executed, it will generate and will store the new package into our local repository.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$&amp;gt; set -xg CONAN_USERNAME &quot;fmiguelgarcia&quot;
+$&amp;gt; set -xg CONAN_CHANNEL &quot;stable&quot;
+$&amp;gt; conan test_package
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;There are two important points:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;This recipe downloads the QtCharts’ source code from &lt;code&gt;Github&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;The positional information (user and channel) is set using system variables &lt;code&gt;CONAN_USERNAME&lt;/code&gt; and &lt;code&gt;CONAN_CHANNEL&lt;/code&gt;. In this way, it is more flexible and you can re-use the same test package on several users and/or channels.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;After the source code is downloaded and the QtCharts library built, the test application will be compiled and executed. Finally, a nice chart application will show you.
+If you want to use the library on your projects, it will be enough to add the package as a dependency on your project. In this example:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;n&quot;&gt;requires&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;QtCharts/5.7.0@fmiguelgarcia/stable&quot;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;and adding the information to our build tool, in my case &lt;code&gt;CMake&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;You can see the complete example at &lt;a href=&quot;https://github.com/fmiguelgarcia/conan.qtcharts.git&quot;&gt;Github repo&lt;/a&gt; in &lt;code&gt;test_package/CMakeLists.txt&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;It is important to provide a proper package management system when you deal with a development with several products or parallel work teams. The functional sharing and the right dependence management are fundamental factors. I have seen some companies where libraries are not shared and each product has its own velocity and, at the end, they make the same thing twice or three times.&lt;/p&gt;
+
+&lt;p&gt;Share library versions have also a dark side. If the package split is not proper, you will end suffering in each minimum change and it will require a lot uncountable versions. Welcome to your &lt;strong&gt;Dependency hell&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The versioning is a tool that will improve the productivity and the quality, on the software and the process. If you want to get the most out of it, it is important to use good tools, such as &lt;code&gt;conan&lt;/code&gt; and &lt;code&gt;CMake&lt;/code&gt;, and of course, great third-party libraries like &lt;code&gt;Qt&lt;/code&gt; and excellent IDE like &lt;strong&gt;KDevelop&lt;/strong&gt; or my legacy &lt;strong&gt;Vim&lt;/strong&gt;.&lt;/p&gt;</content><author><name>Francisco Miguel García</name></author><summary type="html">Each new Qt release usually comes with new and interesting features. In the last 5.6.0, the shiny new QtCharts’s licence was a temptation for me. However, after downloading this bundle, I discovered that QtCharts was not included. You need to download it from git and compile it by yourself.</summary></entry><entry xml:lang="en"><title type="html">API, threads, and smart pointers</title><link href="https://fmiguelgarcia.github.io/cpp/API-smart-pointers/" rel="alternate" type="text/html" title="API, threads, and smart pointers" /><published>2016-05-20T17:19:48+02:00</published><updated>2016-05-20T17:19:48+02:00</updated><id>https://fmiguelgarcia.github.io/cpp/API-smart-pointers</id><content type="html" xml:base="https://fmiguelgarcia.github.io/cpp/API-smart-pointers/">&lt;p&gt;What is the Smart Pointers’ semantic? How could this affect the asynchronous stage? Creating API needs always an extra effort looking for future advantages: easy to use, asynchronous facilities, reusable, SOLID principles, etc.&lt;/p&gt;
+
+&lt;aside class=&quot;sidebar__right&quot;&gt;
+&lt;nav class=&quot;toc&quot;&gt;
+    &lt;header&gt;&lt;h4 class=&quot;nav__title&quot;&gt;&lt;i class=&quot;fa fa-file-text&quot;&gt;&lt;/i&gt; On This Page&lt;/h4&gt;&lt;/header&gt;
+&lt;ul class=&quot;toc__menu&quot; id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#problem&quot; id=&quot;markdown-toc-problem&quot;&gt;Problem&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#solution&quot; id=&quot;markdown-toc-solution&quot;&gt;Solution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#tldr-or-why&quot; id=&quot;markdown-toc-tldr-or-why&quot;&gt;TL;DR or Why?&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#the-wild-raw-pointers&quot; id=&quot;markdown-toc-the-wild-raw-pointers&quot;&gt;The wild: raw pointers&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#the-lone-ranger-stdunique_ptr&quot; id=&quot;markdown-toc-the-lone-ranger-stdunique_ptr&quot;&gt;The lone ranger: std::unique_ptr&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#as-mum-said-sharing-is-good-stdshared_ptr&quot; id=&quot;markdown-toc-as-mum-said-sharing-is-good-stdshared_ptr&quot;&gt;As mum said “Sharing is good”: std::shared_ptr.&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#qshareddatapointer-cheap-encapsulation-or-copy-on-write&quot; id=&quot;markdown-toc-qshareddatapointer-cheap-encapsulation-or-copy-on-write&quot;&gt;QSharedDataPointer: Cheap encapsulation or Copy-on-write&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#the-voyeur-stdweak_ptr&quot; id=&quot;markdown-toc-the-voyeur-stdweak_ptr&quot;&gt;The voyeur: std::weak_ptr&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#conclusion&quot; id=&quot;markdown-toc-conclusion&quot;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;/nav&gt;
+&lt;/aside&gt;
+
+&lt;h1 id=&quot;problem&quot;&gt;Problem&lt;/h1&gt;
+&lt;p&gt;In this first entry, I would like start making a question on many minds: &lt;em&gt;“Should I use a raw pointer, a reference, a smart pointer or just a simple local variable on the stack?”&lt;/em&gt;, and answer depends on what you want to say to whom will use your API or your code in the future.&lt;/p&gt;
+
+&lt;p&gt;There is a huge documentation about all smart pointers(SP) but anyone underlines the semantic beyond each of ones or how you can use to get better APIs.&lt;/p&gt;
+
+&lt;h1 id=&quot;solution&quot;&gt;Solution&lt;/h1&gt;
+&lt;table&gt;
+ &lt;tr&gt;
+  &lt;th&gt;Tool&lt;/th&gt;
+  &lt;th&gt;Scope&lt;/th&gt;
+  &lt;th&gt;Multi-thread&lt;/th&gt;
+  &lt;th&gt;Synchronization needed&lt;/th&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;T&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Local scope&lt;/td&gt;
+  &lt;td&gt;Safe&lt;/td&gt;
+  &lt;td&gt;No&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;const T&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Local scope&lt;/td&gt;
+  &lt;td&gt;Safe&lt;/td&gt;
+  &lt;td&gt;No&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;T&amp;amp;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes&lt;/td&gt;
+  &lt;td&gt;Unsafe: Can't guarantee that variable is still alive between threads&lt;/td&gt;
+  &lt;td&gt;Yes&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;T&amp;#42;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes&lt;/td&gt;
+  &lt;td&gt;Unsafe: Can't guarantee that variable is still alive between threads&lt;/td&gt;
+  &lt;td&gt;Yes&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;T&amp;#42; const&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes&lt;/td&gt;
+  &lt;td&gt;Unsafe: Can't guarantee that variable is still alive between threads&lt;/td&gt;
+  &lt;td&gt;No, it is lovely &lt;code&gt;const&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;std::unique_ptr&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Local scope&lt;/td&gt;
+  &lt;td&gt;Safe: It guarantees that variable is alive between threads&lt;/td&gt;
+  &lt;td&gt;No&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;std::shared_ptr&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes&lt;/td&gt; 
+  &lt;td&gt;Safe: It guarantees that variable is alive&lt;/td&gt;
+  &lt;td&gt;Yes&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;std::shared_ptr&amp;lt;const T&amp;gt;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes&lt;/td&gt;
+  &lt;td&gt;Safe: It guarantees that variable is alive&lt;/td&gt;
+  &lt;td&gt;No, it is lovely &lt;code&gt;const&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;std::weak_ptr&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes, &lt;strong&gt;not&lt;/strong&gt; extension&lt;/td&gt;
+  &lt;td&gt;Safe: It guarantees that variable is alive when you use &lt;code&gt;std::weak_ptr&amp;lt;T&amp;gt;::lock()&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Yes&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;code&gt;QSharedDataPointer&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/td&gt;
+  &lt;td&gt;Multiple scopes for reading and &lt;strong&gt;local scope in writing&lt;/strong&gt;&lt;/td&gt;
+  &lt;td&gt;Safe: It guarantees that variable is alive&amp;lt;/code&amp;gt;&lt;/td&gt;
+  &lt;td&gt;No, but new copies when write&lt;/td&gt;
+ &lt;/tr&gt;
+
+&lt;/table&gt;
+
+&lt;h1 id=&quot;tldr-or-why&quot;&gt;TL;DR or Why?&lt;/h1&gt;
+
+&lt;h2 id=&quot;the-wild-raw-pointers&quot;&gt;The wild: raw pointers&lt;/h2&gt;
+
+&lt;p&gt;Raw pointers are &lt;strong&gt;not bad per se&lt;/strong&gt;. One problem is that you could have memory leaks because you have forgotten some &lt;code&gt;delete&lt;/code&gt; or a &lt;em&gt;unexpected exception&lt;/em&gt; is thrown.
+However, the big issue is that you have no information about &lt;strong&gt;who is the owner&lt;/strong&gt; of the raw pointer, in other words, who bears the &lt;strong&gt;responsibility of deleting it&lt;/strong&gt;. Documentation of your API is the only way to solve this and sometimes developers do not read or follow that one (do you remember if you must free the array returned by &lt;code&gt;strerror&lt;/code&gt; function?).
+Let’s look the following example:&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Foo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;my_function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array_size&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Who is the returned pointer owner? Should I delete it after using it or is something internal? &lt;strong&gt;Raw pointers have no information about multithreading therefore we must use synchronization tools like mutex, semaphores, conditions…&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;the-lone-ranger-stdunique_ptr&quot;&gt;The lone ranger: std::unique_ptr&lt;/h2&gt;
+
+&lt;p&gt;As you probably know, this smart pointer &lt;strong&gt;assures memory will be freed when we go out of the scope&lt;/strong&gt;. Our previous function will be something like:&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unary_ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Foo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;my_function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;At first glance, future developers of your API will know what will be the scoped of the returned object. Moreover, we also increase the exception guarantee to &lt;strong&gt;“Basic exception safety”&lt;/strong&gt; (a.k.a. no-leak guarantee).&lt;/p&gt;
+
+&lt;p&gt;But there are still more, when we use &lt;code&gt;std::unary_ptr&lt;/code&gt; we also &lt;strong&gt;facilitate the transformation from single thread code to multi-threading because we are ensuring that the object is unique&lt;/strong&gt; (its semantic value). A handicap is clear: &lt;code&gt;std::unary_ptr&lt;/code&gt; can NOT be stored in containers, neither share them. But go ahead to our next guest.&lt;/p&gt;
+
+&lt;h2 id=&quot;as-mum-said-sharing-is-good-stdshared_ptr&quot;&gt;As mum said “Sharing is good”: std::shared_ptr.&lt;/h2&gt;
+
+&lt;p&gt;If you come from languages which use garbage collector, you will be very comfortable using &lt;code&gt;std::shared_ptr&lt;/code&gt;. Perhaps you would think: &lt;em&gt;“why are not &lt;code&gt;std::shared_ptr&lt;/code&gt; used everywhere?”&lt;/em&gt; or &lt;em&gt;“Will C++ be easier than Java?”&lt;/em&gt; Well, you know C++ guys: we don’t like a unique solution for everything. In fact, we &lt;strong&gt;need to be aware of the extra cost related to the internal shared counter&lt;/strong&gt; and the double memory request( this last has been dampened by &lt;code&gt;std::make_shared&lt;/code&gt;, but that is another history).&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shared_ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Foo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;my_function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vector&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;values&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Asynchronous uses are not easier&lt;/strong&gt; than &lt;code&gt;std::unique_ptr&lt;/code&gt; because we are sharing memory, so we will need to protect access using synchronous tools( mutex, semaphore, etc).
+Return an internal &lt;code&gt;std::shared_ptr&lt;/code&gt; member is not a good idea as you could think. Let’s assume we have the following code:&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;These first option has a big problem: the &lt;strong&gt;“y()” function makes a copy from m_y each time we call it&lt;/strong&gt;. If &lt;code&gt;sizeof(Y)&lt;/code&gt; is big (or copy operation is expensive), it will affect the performance. A second option is return a const reference, isn’t it?&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;That choice has two issues at least:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It does &lt;strong&gt;NOT&lt;/strong&gt; guarantee to avoid copies, because it depends on where we will store the result. In example:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// copy operation.
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;instead of something like:&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// No copy operation
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Secondly, and more important, you are creating a &lt;strong&gt;strong dependency between your class structure and your API&lt;/strong&gt; ( Source and Binary compatibility in API creation will be a future post). Well, let’s return a raw pointer or a &lt;code&gt;shared_ptr&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make_shared&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shared_ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shared_ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;That solution allows us to return &lt;code&gt;m_y&lt;/code&gt; in an efficient way, because NO deep-copy is realized. It just makes a light copy, maybe a couple of pointers. In this way, the &lt;code&gt;Y&lt;/code&gt; copy complexity does NOT mind. &lt;em&gt;We get a constant order copy operation.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;It seems a good idea but unfortunately it does &lt;strong&gt;not&lt;/strong&gt;. In this way, we &lt;strong&gt;lost the encapsulation&lt;/strong&gt;: we can change the returned object from outside &lt;code&gt;X&lt;/code&gt;, and of course, &lt;code&gt;X&lt;/code&gt; object will not be notified. Java guys solve that using the &lt;code&gt;clone()&lt;/code&gt; method when they want to avoid this situation. But we have the elegant &lt;em&gt;copy-on-write&lt;/em&gt; pointer to deal with this kind of things.&lt;/p&gt;
+
+&lt;h2 id=&quot;qshareddatapointer-cheap-encapsulation-or-copy-on-write&quot;&gt;QSharedDataPointer: Cheap encapsulation or Copy-on-write&lt;/h2&gt;
+
+&lt;p&gt;This SP uses one of the best C++ capabilities: the &lt;code&gt;const&lt;/code&gt; modifier. Initially, that smart pointer makes &lt;em&gt;shadow copy&lt;/em&gt; in each copy operation, in a similar way that &lt;code&gt;shared_ptr&lt;/code&gt; does it. However, when we try to change the object pointed by our smart pointer and it is not unique, a &lt;em&gt;deep copy&lt;/em&gt; will be make (a.k.a detach operation). We have the best of both worlds!!!&lt;/p&gt;
+
+&lt;p&gt;The best example of this smart pointer is &lt;code&gt;QsharedDataPointer&lt;/code&gt; from &lt;em&gt;Qt framework&lt;/em&gt;. In Qt documentation you will find examples and information about how it works. You can also find other kind of smart pointers in Qt, like &lt;code&gt;QExplicitlySharedDataPointer&lt;/code&gt; which will also be a well worth reading.&lt;/p&gt;
+
+&lt;p&gt;I have to say that some kind of issues, regarding to returning a object, has been covered by the new &lt;strong&gt;Move semantic&lt;/strong&gt; in &lt;strong&gt;C++ 11&lt;/strong&gt;. Nevertheless, if your legacy project does not allow you to use the newest compilers, have a look to those types. About &lt;em&gt;&lt;strong&gt;multi-threading&lt;/strong&gt;, this smart pointer is an absolute winner: it is automatically shared when it is just reading, and making a local deep copy when it is written.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;the-voyeur-stdweak_ptr&quot;&gt;The voyeur: std::weak_ptr&lt;/h2&gt;
+
+&lt;p&gt;Until now, we are looking for keep the object alive through different scopes (&lt;code&gt;shared_ptr&lt;/code&gt;), or link its life to a specific scope(&lt;code&gt;unique_ptr&lt;/code&gt;) or just the raw pointer’s wildlife (no exception safety). But, What do I need if I just want to know if object is alive but I do not want to affect its scope? Sorry Heisenberg(Uncertainty principle) but we can do that.&lt;/p&gt;
+
+&lt;p&gt;To solve that we have the &lt;code&gt;std::weak_ptr&lt;/code&gt;. It allows us to make a reference to a &lt;code&gt;std::shared_ptr&lt;/code&gt; without expanding its scope. It means, when last &lt;code&gt;std::shared_ptr&lt;/code&gt; is gone, its internal raw pointer will be deleted, no matter if there are any associated &lt;code&gt;std::weak_ptr&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This behaviour is specially useful when you just want to &lt;em&gt;monitor some data from another threads&lt;/em&gt;, i.e. when you want to check the status of long tasks working with huge result set from the database.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;The importance of smart pointer is not just that they produce a safe environment to rise exceptions, nor they solve the resource management (RAII), nor you can write less code (other lenguages use &lt;code&gt;finally&lt;/code&gt; to recovery from some complex cleaning phases, it just a workaround due the lack of destructor). No, &lt;strong&gt;the big advantage is their semantic value&lt;/strong&gt;. Another developer, at a glance to the smart pointer type, is aware of the variable scope, its asynchronous constraints or what the API author kept in mind. And all of this without documentation.&lt;/p&gt;
+
+&lt;p&gt;Yes, Smart pointers generate safer code than raw pointers. Moreover, they also facilitate the code maintainability, and that is one of the greatest values for this industry. Last statistics show that software average lifetime is just 10 years. How many lines of code could a developer team generate along 10 years? What is the cost to add a new feature in that legacy code? What is my time-to-market?. Well, software maintainability responses that questions, and it is translated in cost contention or the difference between the rival company beat us or not. It is not a minor subject.
+The most important part: Your comments, your feels or your experiences&lt;/p&gt;</content><author><name>Francisco Miguel García</name></author><summary type="html">What is the Smart Pointers’ semantic? How could this affect the asynchronous stage? Creating API needs always an extra effort looking for future advantages: easy to use, asynchronous facilities, reusable, SOLID principles, etc.</summary></entry></feed>
